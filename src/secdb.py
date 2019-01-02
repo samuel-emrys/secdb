@@ -49,7 +49,7 @@ if __name__ == "__main__":
 		arg = sys.argv[1]
 		now = datetime.utcnow()
 
-	logging.basicConfig(filename='../log/secdb.log',level=logging.DEBUG)
+	logging.basicConfig(filename='log/secdb.log',level=logging.DEBUG)
 
 	now = datetime.utcnow()
 	if (arg == "--build"):

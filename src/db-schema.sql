@@ -9,7 +9,7 @@ CREATE TABLE CURRENCY(
 CREATE TABLE EXCHANGE(
 	id						SERIAL 												,
 	abbrev 					VARCHAR(32)		NOT NULL							,
-	suffix 					VARCHAR(32) 	NOT NULL
+	suffix 					VARCHAR(32) 	NOT NULL							,
 	name 					VARCHAR(255)	NOT NULL							,
 	city 					VARCHAR(255)		NULL							,
 	country 				VARCHAR(255)		NULL							,
@@ -29,8 +29,8 @@ CREATE TABLE DATA_VENDOR(
 	name 					VARCHAR(64)		NOT	NULL							,
 	website_url 			VARCHAR(255)		NULL							,
 	support_email 			VARCHAR(255)		NULL							,
-	api_url 				VARCHAR(255)	NOT NULL 							,
-	api_key 				VARCHAR(255) 	NOT NULL 							,
+	api_url 				VARCHAR(255)		NULL 							,
+	api_key 				VARCHAR(255) 		NULL 							,
 	created_date			TIMESTAMP 		NOT NULL							,
 	last_updated_date 		TIMESTAMP 		NOT NULL							,
 	PRIMARY KEY				(id)
