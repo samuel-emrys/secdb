@@ -7,6 +7,7 @@ secdb will maintain the following data:
 
 * ISO 4217 Currency Information
 * Stock Exchanges
+
 ** Name
 ** Abbreviation
 ** Ticker Suffix
@@ -15,11 +16,14 @@ secdb will maintain the following data:
 ** Region Timezone (UTC)
 ** Timezone Offset
 ** Exchange Open and Close Time (UTC)
+
 * Data Vendors
 ** Name
 ** URL
 ** API Key
+
 * Symbols
+
 ** Ticker
 ** Name
 ** Sector
@@ -28,7 +32,9 @@ secdb will maintain the following data:
 ** Listed Stock Exchange
 ** Benchmark (where applicable)
 ** Listing date (where applicable)
+
 * Daily Prices
+
 ** Date
 ** Open
 ** High
