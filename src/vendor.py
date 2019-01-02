@@ -7,13 +7,8 @@ from datetime import datetime
 def build(con):
 	'''
 	@input: Connection to the database
-	@TODO: 
-			Implement configuration file for vendors
-			Add api url to database
-				Do I need to specify type of api?
-				Multiple API URLs?
-			Add API key to database
 	'''
+	
 	vendors = []
 	configFilename = 'vendors.conf'
 	
@@ -34,7 +29,6 @@ def build(con):
 		last_updated_date = now
 
 		vendors.append( (name, website_url, support_email, api_url, api_key, created_date, last_updated_date) )
-
 
 	# for vendor in vendors:
 	# 	print("%s | %s | %s | %s | %s | %s | %s" % (vendor[0], vendor[1], vendor[2], vendor[3], vendor[4], vendor[5], vendor[6]))

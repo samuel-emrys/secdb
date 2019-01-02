@@ -260,7 +260,7 @@ def parseMER(mer):
 		# else if string doesn't match a decimal
 		elif not (re.match(r"^[0-9]{1,2}(.[0-9]+?)?$", mer)):
 			now = datetime.utcnow()
-			logging.debug(str(now) + " Invalid MER identified. Sanitized with 'None'.")
+			logging.debug(str(now) + " Invalid MER ' " + mer + "' identified. Sanitized with 'None'.")
 			mer = None
 
 	return mer

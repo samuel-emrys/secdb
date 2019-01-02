@@ -27,7 +27,12 @@ def insertmany(con, data, query):
 
 	cursor = con.cursor();
 	for i in range(0, int(ceil(len(data) / 100.0))):
-		cursor.executemany(query, data[i*100:(i+1)*100-1])
+		try:
+			cursor.executemany(query, data[i*100:(i+1)*100-1])
+		except psycopg2.IntegrityError as e:
+			now = datetime.utcnow()
+			logging.error(str(now) + " " + str(e))
+
 
 	now = datetime.utcnow()
 	logging.info(str(now) + " Inserted " + str(len(data)) + " entries into database.");
