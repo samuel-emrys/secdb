@@ -4,3 +4,4 @@ log/*
 *.log
 src/__pycache__
 *.pyc
+*.txt
