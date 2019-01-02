@@ -1,0 +1,179 @@
+AFN | 971 | Afghani | 2
+EUR | 978 | Euro | 2
+ALL | 008 | Lek | 2
+DZD | 012 | Algerian Dinar | 2
+USD | 840 | US Dollar | 2
+AOA | 973 | Kwanza | 2
+XCD | 951 | East Caribbean Dollar | 2
+ARS | 032 | Argentine Peso | 2
+AMD | 051 | Armenian Dram | 2
+AWG | 533 | Aruban Florin | 2
+AUD | 036 | Australian Dollar | 2
+AZN | 944 | Azerbaijan Manat | 2
+BSD | 044 | Bahamian Dollar | 2
+BHD | 048 | Bahraini Dinar | 3
+BDT | 050 | Taka | 2
+BBD | 052 | Barbados Dollar | 2
+BYN | 933 | Belarusian Ruble | 2
+BZD | 084 | Belize Dollar | 2
+XOF | 952 | CFA Franc BCEAO | 0
+BMD | 060 | Bermudian Dollar | 2
+INR | 356 | Indian Rupee | 2
+BTN | 064 | Ngultrum | 2
+BOB | 068 | Boliviano | 2
+BOV | 984 | Mvdol | 2
+BAM | 977 | Convertible Mark | 2
+BWP | 072 | Pula | 2
+NOK | 578 | Norwegian Krone | 2
+BRL | 986 | Brazilian Real | 2
+BND | 096 | Brunei Dollar | 2
+BGN | 975 | Bulgarian Lev | 2
+BIF | 108 | Burundi Franc | 0
+CVE | 132 | Cabo Verde Escudo | 2
+KHR | 116 | Riel | 2
+XAF | 950 | CFA Franc BEAC | 0
+CAD | 124 | Canadian Dollar | 2
+KYD | 136 | Cayman Islands Dollar | 2
+CLP | 152 | Chilean Peso | 0
+CLF | 990 | Unidad de Fomento | 4
+CNY | 156 | Yuan Renminbi | 2
+COP | 170 | Colombian Peso | 2
+COU | 970 | Unidad de Valor Real | 2
+KMF | 174 | Comorian Franc  | 0
+CDF | 976 | Congolese Franc | 2
+NZD | 554 | New Zealand Dollar | 2
+CRC | 188 | Costa Rican Colon | 2
+HRK | 191 | Kuna | 2
+CUP | 192 | Cuban Peso | 2
+CUC | 931 | Peso Convertible | 2
+ANG | 532 | Netherlands Antillean Guilder | 2
+CZK | 203 | Czech Koruna | 2
+DKK | 208 | Danish Krone | 2
+DJF | 262 | Djibouti Franc | 0
+DOP | 214 | Dominican Peso | 2
+EGP | 818 | Egyptian Pound | 2
+SVC | 222 | El Salvador Colon | 2
+ERN | 232 | Nakfa | 2
+ETB | 230 | Ethiopian Birr | 2
+FKP | 238 | Falkland Islands Pound | 2
+FJD | 242 | Fiji Dollar | 2
+XPF | 953 | CFP Franc | 0
+GMD | 270 | Dalasi | 2
+GEL | 981 | Lari | 2
+GHS | 936 | Ghana Cedi | 2
+GIP | 292 | Gibraltar Pound | 2
+GTQ | 320 | Quetzal | 2
+GBP | 826 | Pound Sterling | 2
+GNF | 324 | Guinean Franc | 0
+GYD | 328 | Guyana Dollar | 2
+HTG | 332 | Gourde | 2
+HNL | 340 | Lempira | 2
+HKD | 344 | Hong Kong Dollar | 2
+HUF | 348 | Forint | 2
+ISK | 352 | Iceland Krona | 0
+IDR | 360 | Rupiah | 2
+XDR | 960 | SDR (Special Drawing Right) | 0
+IRR | 364 | Iranian Rial | 2
+IQD | 368 | Iraqi Dinar | 3
+ILS | 376 | New Israeli Sheqel | 2
+JMD | 388 | Jamaican Dollar | 2
+JPY | 392 | Yen | 0
+JOD | 400 | Jordanian Dinar | 3
+KZT | 398 | Tenge | 2
+KES | 404 | Kenyan Shilling | 2
+KPW | 408 | North Korean Won | 2
+KRW | 410 | Won | 0
+KWD | 414 | Kuwaiti Dinar | 3
+KGS | 417 | Som | 2
+LAK | 418 | Lao Kip | 2
+LBP | 422 | Lebanese Pound | 2
+LSL | 426 | Loti | 2
+ZAR | 710 | Rand | 2
+LRD | 430 | Liberian Dollar | 2
+LYD | 434 | Libyan Dinar | 3
+CHF | 756 | Swiss Franc | 2
+MOP | 446 | Pataca | 2
+MKD | 807 | Denar | 2
+MGA | 969 | Malagasy Ariary | 2
+MWK | 454 | Malawi Kwacha | 2
+MYR | 458 | Malaysian Ringgit | 2
+MVR | 462 | Rufiyaa | 2
+MRU | 929 | Ouguiya | 2
+MUR | 480 | Mauritius Rupee | 2
+XUA | 965 | ADB Unit of Account | 0
+MXN | 484 | Mexican Peso | 2
+MXV | 979 | Mexican Unidad de Inversion (UDI) | 2
+MDL | 498 | Moldovan Leu | 2
+MNT | 496 | Tugrik | 2
+MAD | 504 | Moroccan Dirham | 2
+MZN | 943 | Mozambique Metical | 2
+MMK | 104 | Kyat | 2
+NAD | 516 | Namibia Dollar | 2
+NPR | 524 | Nepalese Rupee | 2
+NIO | 558 | Cordoba Oro | 2
+NGN | 566 | Naira | 2
+OMR | 512 | Rial Omani | 3
+PKR | 586 | Pakistan Rupee | 2
+PAB | 590 | Balboa | 2
+PGK | 598 | Kina | 2
+PYG | 600 | Guarani | 0
+PEN | 604 | Sol | 2
+PHP | 608 | Philippine Peso | 2
+PLN | 985 | Zloty | 2
+QAR | 634 | Qatari Rial | 2
+RON | 946 | Romanian Leu | 2
+RUB | 643 | Russian Ruble | 2
+RWF | 646 | Rwanda Franc | 0
+SHP | 654 | Saint Helena Pound | 2
+WST | 882 | Tala | 2
+STN | 930 | Dobra | 2
+SAR | 682 | Saudi Riyal | 2
+RSD | 941 | Serbian Dinar | 2
+SCR | 690 | Seychelles Rupee | 2
+SLL | 694 | Leone | 2
+SGD | 702 | Singapore Dollar | 2
+XSU | 994 | Sucre | 0
+SBD | 090 | Solomon Islands Dollar | 2
+SOS | 706 | Somali Shilling | 2
+SSP | 728 | South Sudanese Pound | 2
+LKR | 144 | Sri Lanka Rupee | 2
+SDG | 938 | Sudanese Pound | 2
+SRD | 968 | Surinam Dollar | 2
+SZL | 748 | Lilangeni | 2
+SEK | 752 | Swedish Krona | 2
+CHE | 947 | WIR Euro | 2
+CHW | 948 | WIR Franc | 2
+SYP | 760 | Syrian Pound | 2
+TWD | 901 | New Taiwan Dollar | 2
+TJS | 972 | Somoni | 2
+TZS | 834 | Tanzanian Shilling | 2
+THB | 764 | Baht | 2
+TOP | 776 | Pa’anga | 2
+TTD | 780 | Trinidad and Tobago Dollar | 2
+TND | 788 | Tunisian Dinar | 3
+TRY | 949 | Turkish Lira | 2
+TMT | 934 | Turkmenistan New Manat | 2
+UGX | 800 | Uganda Shilling | 0
+UAH | 980 | Hryvnia | 2
+AED | 784 | UAE Dirham | 2
+USN | 997 | US Dollar (Next day) | 2
+UYU | 858 | Peso Uruguayo | 2
+UYI | 940 | Uruguay Peso en Unidades Indexadas (UI) | 0
+UYW | 927 | Unidad Previsional | 4
+UZS | 860 | Uzbekistan Sum | 2
+VUV | 548 | Vatu | 0
+VES | 928 | Bolívar Soberano | 2
+VND | 704 | Dong | 0
+YER | 886 | Yemeni Rial | 2
+ZMW | 967 | Zambian Kwacha | 2
+ZWL | 932 | Zimbabwe Dollar | 2
+XBA | 955 | Bond Markets Unit European Composite Unit (EURCO) | 0
+XBB | 956 | Bond Markets Unit European Monetary Unit (E.M.U.-6) | 0
+XBC | 957 | Bond Markets Unit European Unit of Account 9 (E.U.A.-9) | 0
+XBD | 958 | Bond Markets Unit European Unit of Account 17 (E.U.A.-17) | 0
+XTS | 963 | Codes specifically reserved for testing purposes | 0
+XXX | 999 | The codes assigned for transactions where no currency is involved | 0
+XAU | 959 | Gold | 0
+XPD | 964 | Palladium | 0
+XPT | 962 | Platinum | 0
+XAG | 961 | Silver | 0
