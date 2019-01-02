@@ -3,3 +3,4 @@ src/vendors.conf
 log/*
 *.log
 src/__pycache__
+*.pyc
