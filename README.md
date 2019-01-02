@@ -7,41 +7,37 @@ secdb will maintain the following data:
 
 * ISO 4217 Currency Information
 * Stock Exchanges
-
-** Name
-** Abbreviation
-** Ticker Suffix
-** City/Country
-** Currency
-** Region Timezone (UTC)
-** Timezone Offset
-** Exchange Open and Close Time (UTC)
+	* Name
+	* Abbreviation
+	* Ticker Suffix
+	* City/Country
+	* Currency
+	* Region Timezone (UTC)
+	* Timezone Offset
+	* Exchange Open and Close Time (UTC)
 
 * Data Vendors
-** Name
-** URL
-** API Key
+	* Name
+	* URL
+	* API Key
 
 * Symbols
-
-** Ticker
-** Name
-** Sector
-** Currency
-** Instrument Type
-** Listed Stock Exchange
-** Benchmark (where applicable)
-** Listing date (where applicable)
+	* Ticker
+	* Name
+	* Sector
+	* Currency
+	* Instrument Type
+	* Listed Stock Exchange
+	* Benchmark (where applicable)
+	* Listing date (where applicable)
 
 * Daily Prices
-
-** Date
-** Open
-** High
-** Low
-** Close
-** Volume
-
+	* Date
+	* Open
+	* High
+	* Low
+	* Close
+	* Volume
 
 ## Dependencies
 
