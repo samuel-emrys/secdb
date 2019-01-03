@@ -9,7 +9,7 @@ CREATE TABLE CURRENCY(
 CREATE TABLE EXCHANGE(
 	id						SERIAL 												,
 	abbrev 					VARCHAR(32)		NOT NULL							,
-	suffix 					VARCHAR(32) 	NOT NULL							,
+	suffix 					VARCHAR(32) 		NULL							,
 	name 					VARCHAR(255)	NOT NULL							,
 	city 					VARCHAR(255)		NULL							,
 	country 				VARCHAR(255)		NULL							,

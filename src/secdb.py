@@ -24,10 +24,10 @@ def build_database():
 
 
 
-	# currency.build(con)
+	currency.build(con)
 	vendor.build(con)
-	# exchange.build(con)
-	# symbol.build()
+	exchange.build(con)
+	symbol.build()
 	# price.build()
 
 	con.commit()

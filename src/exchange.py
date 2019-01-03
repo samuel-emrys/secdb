@@ -1,5 +1,5 @@
 import requests
-import re
+# import re
 import database
 import helpers
 
