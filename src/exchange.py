@@ -2,17 +2,26 @@ import requests
 # import re
 import database
 import helpers
+import io
+import csv
+import configparser
 
 from datetime import datetime
 from datetime import timedelta
 from datetime import time
 from lxml import html
 
+# def build(con):
+# 	getSuffixes()
+
 def build(con):
 	'''
 		@TODO
 			Work out how to associate a currency with an exchange - currencies are currently unpopulated
 	'''
+
+	suffixes = getSuffixes()
+
 	NAME_ELEMENT = 0
 	ID_ELEMENT = 1
 	COUNTRY_ELEMENT = 2
@@ -60,6 +69,48 @@ def build(con):
 	query = "INSERT INTO EXCHANGE (%s) VALUES (%s);" % (columns, insert_str)
 	database.insertmany(con, exchanges, query)
 
+
+def getSuffixes():
+	# - https://www.worldtradingdata.com/download/list (Stocks)
+
+	stockListURL = "https://www.worldtradingdata.com/download/list"
+	login_url = "https://www.worldtradingdata.com/login"
+
+	session = requests.Session() # create a requests Session
+	r = session.get(login_url)
+
+	### Get token
+	tree = html.fromstring(r.content)
+	tokenValue = tree.xpath('//input[@name="_token"]/@value')
+	token = str(tokenValue[0])
+	# Form credentials
+	credentialsFilename = 'credentials.conf'
+	
+	# Load Configuration File
+	credentials = configparser.RawConfigParser()
+	credentials.read(credentialsFilename)
+
+	for cred in credentials.sections():
+		email = credentials.get(cred, 'email')
+		password = credentials.get(cred, 'password')
+
+	# Create credentials dictionary
+	data_credentials = {'email': email, 'password': password, '_token': token}
+
+	# Log in to requests session, send post
+	r2 = session.post(login_url, data=data_credentials)
+
+	response = session.get(stockListURL, timeout=(15,15))
+
+	# response = requests.get(stockListURL)
+	csvfile = io.StringIO(response.text, newline='')
+	stocklist = csv.reader(csvfile)
+
+	content = []
+	for line in stocklist:
+		content.append(line)
+
+	print(str(len(content)) + " items downloaded")
 
 def parseName(name):
 	name = helpers.removeWhitespace(name)

@@ -8,11 +8,10 @@ from datetime import datetime
 from lxml import html
 
 
-def build():
+def build(con):
 	'''
 		@TODO:
 				Incorporate worldtradingdata tickers
-				Revise database schema
 				Source API's:
 					- https://www.worldtradingdata.com/download/list (Stocks)
 					- https://www.worldtradingdata.com/download/mutual/list (Mutual Funds)
@@ -24,30 +23,14 @@ def build():
 
 	symbols = companySymbols + otherSymbols
 
-	for symbol in symbols:
-		print("%s | %s | %s | %s | %s | %s | %s | %s | %s" % (symbol[0], symbol[1], symbol[2], symbol[3], symbol[4], symbol[5], symbol[6], symbol[7], symbol[8]))
+	# for symbol in symbols:
+	# 	print("%s | %s | %s | %s | %s | %s | %s | %s | %s" % (symbol[0], symbol[1], symbol[2], symbol[3], symbol[4], symbol[5], symbol[6], symbol[7], symbol[8]))
 
+	columns = "ticker, instrument, name, sector, currency, listing_date, last_updated_date"
+	insert_str = ("%s, " * 7)[:-2]
+	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (column_str, insert_str)
+	database.insertmany(con, symbols, query)
 
-	# column_str = "ticker, instrument, name, sector, currency, listing_date, last_updated_date"
-	# insert_str = ("%s, " * 7)[:-2]
-	# final_str = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (column_str, insert_str)
-
-	# now = datetime.utcnow()
-	# try:
-	# 	con = connectToDatabase()
-	# 	logging.info(str(now) + " Connected!")
-	# except:
-	# 	logging.exception(str(now) + " Unable to connect to Database. Exiting.")
-	# 	exit()
-
-	# cursor = con.cursor();
-	# for i in range(0, int(ceil(len(symbols) / 100.0))):
-	# 	cursor.executemany(final_str, symbols[i*100:(i+1)*100-1])
-
-
-	# con.commit()
-	# cur.close()
-	# conn.close()
 
 def getCompanies():
 	asxCompanyURL = 'https://www.asx.com.au/asx/research/ASXListedCompanies.csv'

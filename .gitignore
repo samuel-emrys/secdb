@@ -1,5 +1,5 @@
 .DS_Store
-src/vendors.conf
+*.conf
 *.log
 src/__pycache__
 *.pyc
