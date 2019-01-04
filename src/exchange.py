@@ -91,7 +91,7 @@ def getSuffixes():
 	credentials.read(credentialsFilename)
 
 	for cred in credentials.sections():
-		email = credentials.get(cred, 'email')
+		email = credentials.get(cred, 'user')
 		password = credentials.get(cred, 'password')
 
 	# Create credentials dictionary
