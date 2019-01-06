@@ -11,13 +11,17 @@ from datetime import timedelta
 from datetime import time
 from lxml import html
 
-# def build(con):
-# 	getSuffixes()
-
 def build(con):
 	'''
 		@TODO
-			Work out how to associate a currency with an exchange - currencies are currently unpopulated
+		Improve matching between suffix and stock exchanges. Specific attention:
+				- Sao Paolo Stock Exchange
+				- New Zealand Stock Exchange
+				- Frankfurt Stock Exchange
+			Consider using regex to match first, first and second, first second third words
+				- Potentially develop confidence list and choose more confident if above threshold
+					- Dynamic programming?
+					- Look into techniques
 	'''
 
 	suffixes = getSuffixes()
@@ -42,6 +46,7 @@ def build(con):
 	exchanges = []
 
 	for row in tr_elements:
+		suffix = None
 		first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
 
 		if (len(row) == DATA_ROW_LENGTH and first_element != "Name"):
@@ -57,15 +62,29 @@ def build(con):
 			open_utc = parseTime(row[OPEN_UTC_ELEMENT].text_content())
 			close_utc = parseTime(row[CLOSE_UTC_ELEMENT].text_content())
 
+			suffixList = suffixes.get(abbr, 'N/A')
+
+			if (suffixList != 'N/A'):
+				suffix = suffixList[1]
+			else:
+				for key, values in suffixes.items():
+					# print(suffixList)
+					# print("%s, %s" % (values[0].upper(), name.upper()))
+
+					if (values[0].upper() == name.upper()):
+						suffix = values[1]
+						break
+						# TODO: Insert more advanced matching here
+
 			now = datetime.utcnow()
 			created_date = now
 			last_updated_date = now
 
-			exchanges.append( (abbr, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
-			# print("%s | %s | %s | %s | %s | %s | %s | %s | %s | %s" % (abbr, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date))
+			exchanges.append( (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
+			# print("%s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s" % (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date))
 	
-	columns = "abbrev, name, city, country, timezone, timezone_offset, open_time, close_time, created_date, last_updated_date"
-	insert_str = ("%s, " * 10)[:-2]
+	columns = "abbrev, suffix, name, city, country, timezone, timezone_offset, open_time, close_time, created_date, last_updated_date"
+	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO EXCHANGE (%s) VALUES (%s);" % (columns, insert_str)
 	database.insertmany(con, exchanges, query)
 
@@ -106,11 +125,24 @@ def getSuffixes():
 	csvfile = io.StringIO(response.text, newline='')
 	stocklist = csv.reader(csvfile)
 
-	content = []
+	# Create map of suffixes
+	content = {}
+
+	# Create dataset of suffixes
 	for line in stocklist:
-		content.append(line)
+
+		exchange = helpers.removeWhitespace(line[4])
+		exchangeDesc = helpers.removeWhitespace(line[3])
+		suffixList = line[0].split('.')
+		suffix = helpers.removeWhitespace(suffixList[-1])
+
+		if (exchange != 'N/A' and len(suffixList) > 1 and suffix != 'A' and suffix != 'B' and suffix != 'C' and suffix != 'V'):
+			content[exchange] = (exchangeDesc, suffix)
 
 	print(str(len(content)) + " items downloaded")
+
+	return content
+
 
 def parseName(name):
 	name = helpers.removeWhitespace(name)

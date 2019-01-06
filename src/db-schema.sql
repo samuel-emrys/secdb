@@ -13,7 +13,6 @@ CREATE TABLE EXCHANGE(
 	name 					VARCHAR(255)	NOT NULL							,
 	city 					VARCHAR(255)		NULL							,
 	country 				VARCHAR(255)		NULL							,
-	currency 				VARCHAR(64)			NULL							,
 	timezone 				VARCHAR(64) 		NULL 							,
 	timezone_offset			TIME 				NULL							,
 	open_time				TIME 				NULL 							,
