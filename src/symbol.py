@@ -3,6 +3,8 @@ import csv
 import re
 import io
 import logging
+import configparser
+import helpers
 
 from datetime import datetime
 from lxml import html
@@ -17,22 +19,98 @@ def build(con):
 					- https://www.worldtradingdata.com/download/mutual/list (Mutual Funds)
 	'''
 
+	worldSymbolsUnparsed = getWorldSymbols()
+	# companySymbols = getASXCompanies()
+	# otherSymbols = getOtherASXETP()
 
-	companySymbols = getCompanies()
-	otherSymbols = getOtherETP()
+	cursor = con.cursor()
+	query = "SELECT abbrev, id FROM EXCHANGE;"
+	cursor.execute(query)
+
+	exchangeIDList = cursor.fetchall()
+
+	exchangeID = dict(exchangeIDList)
+
+	worldSymbols = []
+
+	for symbol in worldSymbolsUnparsed:
+		symid = exchangeID.get(symbol[0], None)
+		symbol = list(symbol)
+		symbol[0] = symid
+		symbol = tuple(symbol)
+		# print(symid)
+		worldSymbols.append(symbol)
+
+
+	worldSymbols = [i for i in worldSymbols if i[0] != None ]
 
 	symbols = companySymbols + otherSymbols
 
 	# for symbol in symbols:
 	# 	print("%s | %s | %s | %s | %s | %s | %s | %s | %s" % (symbol[0], symbol[1], symbol[2], symbol[3], symbol[4], symbol[5], symbol[6], symbol[7], symbol[8]))
 
-	columns = "ticker, instrument, name, sector, currency, listing_date, last_updated_date"
-	insert_str = ("%s, " * 7)[:-2]
+	columns = "exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
+	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (column_str, insert_str)
-	database.insertmany(con, symbols, query)
+	# database.insertmany(con, symbols, query)
 
+def getWorldSymbols():
 
-def getCompanies():
+	stockListURL = "https://www.worldtradingdata.com/download/list"
+	login_url = "https://www.worldtradingdata.com/login"
+
+	session = requests.Session() # create a requests Session
+	r = session.get(login_url)
+
+	### Get token
+	tree = html.fromstring(r.content)
+	tokenValue = tree.xpath('//input[@name="_token"]/@value')
+	token = str(tokenValue[0])
+	# Form credentials
+	credentialsFilename = 'credentials.conf'
+	
+	# Load Configuration File
+	credentials = configparser.RawConfigParser()
+	credentials.read(credentialsFilename)
+
+	for cred in credentials.sections():
+		email = credentials.get(cred, 'user')
+		password = credentials.get(cred, 'password')
+
+	# Create credentials dictionary
+	data_credentials = {'email': email, 'password': password, '_token': token}
+
+	# Log in to requests session, send post
+	r2 = session.post(login_url, data=data_credentials)
+
+	response = session.get(stockListURL, timeout=(15,15))
+
+	# response = requests.get(stockListURL)
+	csvfile = io.StringIO(response.text, newline='')
+	stocklist = csv.reader(csvfile)
+
+	# Create map of suffixes
+	content = []
+
+	# Create dataset of suffixes
+	for line in stocklist:
+
+		exchange = helpers.removeWhitespace(line[4])
+		name = helpers.removeWhitespace(line[1])
+		currency = helpers.removeWhitespace(line[2])
+		symbolList = line[0].split('.')
+
+		symbol = helpers.removeWhitespace(''.join(symbolList[:-1])) if len(symbolList) > 1 else helpers.removeWhitespace(symbolList[0])
+
+		# print("%s | %s | %s | %s" % (symbol, name, currency, exchange))
+		now = datetime.utcnow()
+		createdDate = now
+		lastUpdatedDate = now
+		content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
+
+	return content
+
+def getASXCompanies():
 	asxCompanyURL = 'https://www.asx.com.au/asx/research/ASXListedCompanies.csv'
 	response = requests.get(asxCompanyURL)
 	csvfile = io.StringIO(response.text, newline='')
@@ -42,6 +120,7 @@ def getCompanies():
 	symbols = []
 	instrument = 'Shares'
 	currency = 'AUD'
+	exchange = 'ASX'
 	MER = None
 	benchmark = None
 
@@ -66,13 +145,13 @@ def getCompanies():
 			sector = parseSector(sector)
 
 			now = datetime.utcnow()
-			listingDate = now
+			createdDate = now
 			lastUpdatedDate = now
-			symbols.append( (ticker, instrument, name, sector, currency, MER, benchmark, listingDate, lastUpdatedDate) );
+			symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, createdDate, lastUpdatedDate) );
 
 	return symbols
 
-def getOtherETP():
+def getOtherASXETP():
 
 	#Scrape https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm for other products
 	asxETPURL = 'https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm'
@@ -86,6 +165,7 @@ def getOtherETP():
 	table_format = ""
 	sector = None
 	currency = 'AUD'
+	exchange = 'ASX'
 
 	for row in tr_elements:
 		first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
@@ -194,7 +274,8 @@ def getOtherETP():
 				#print("%s | %s | %s | %s | %s | %s | %s | %s" % (name, ticker, instrument, sector, benchmark, MER, opFee, listingDate))
 				now 			= datetime.utcnow()
 				lastUpdatedDate = now
-				symbols.append( (ticker, instrument, name, sector, currency, mer, benchmark, listingDate, lastUpdatedDate) );
+				createdDate 	= now
+				symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listingDate, createdDate, lastUpdatedDate) );
 
 	return symbols
 
