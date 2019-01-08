@@ -45,7 +45,7 @@ def build(con):
 	insert_str = ("%s, " * 4)[:-2]
 	query = "INSERT INTO CURRENCY (%s) VALUES (%s);" % (columns, insert_str)
 	database.insertmany(con, currencies, query)
-
+	con.commit()
 
 def parseMinorUnit(currencyMinorUnit):
 	try:

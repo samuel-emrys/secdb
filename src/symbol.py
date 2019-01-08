@@ -19,42 +19,43 @@ def build(con):
 					- https://www.worldtradingdata.com/download/mutual/list (Mutual Funds)
 	'''
 
-	worldSymbolsUnparsed = getWorldSymbols()
+	worldSymbols = getWorldSymbols(con)
 	# companySymbols = getASXCompanies()
 	# otherSymbols = getOtherASXETP()
 
-	cursor = con.cursor()
-	query = "SELECT abbrev, id FROM EXCHANGE;"
-	cursor.execute(query)
+	# cursor = con.cursor()
+	# query = "SELECT abbrev, id FROM EXCHANGE;"
+	# cursor.execute(query)
 
-	exchangeIDList = cursor.fetchall()
+	# exchangeIDList = cursor.fetchall()
 
-	exchangeID = dict(exchangeIDList)
+	# exchangeID = dict(exchangeIDList)
 
-	worldSymbols = []
+	# worldSymbols = []
 
-	for symbol in worldSymbolsUnparsed:
-		symid = exchangeID.get(symbol[0], None)
-		symbol = list(symbol)
-		symbol[0] = symid
-		symbol = tuple(symbol)
-		# print(symid)
-		worldSymbols.append(symbol)
+	# for symbol in worldSymbolsUnparsed:
+	# 	symid = exchangeID.get(symbol[0], None)
+	# 	symbol = list(symbol)
+	# 	symbol[0] = symid
+	# 	symbol = tuple(symbol)
+	# 	# print(symid)
+	# 	worldSymbols.append(symbol)
 
 
-	worldSymbols = [i for i in worldSymbols if i[0] != None ]
+	# worldSymbols = [i for i in worldSymbols if i[0] != None ]
+	# print(worldSymbols)
+	# symbols = companySymbols + otherSymbols
 
-	symbols = companySymbols + otherSymbols
-
-	# for symbol in symbols:
-	# 	print("%s | %s | %s | %s | %s | %s | %s | %s | %s" % (symbol[0], symbol[1], symbol[2], symbol[3], symbol[4], symbol[5], symbol[6], symbol[7], symbol[8]))
+	print(len(worldSymbols))
+	for symbol in worldSymbols:
+		print(symbol)
 
 	columns = "exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
 	insert_str = ("%s, " * 11)[:-2]
-	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (column_str, insert_str)
+	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (columns, insert_str)
 	# database.insertmany(con, symbols, query)
 
-def getWorldSymbols():
+def getWorldSymbols(con):
 
 	stockListURL = "https://www.worldtradingdata.com/download/list"
 	login_url = "https://www.worldtradingdata.com/login"
@@ -89,10 +90,16 @@ def getWorldSymbols():
 	csvfile = io.StringIO(response.text, newline='')
 	stocklist = csv.reader(csvfile)
 
-	# Create map of suffixes
-	content = []
+	# Get list of abbreviations in exchange list
+	cursor = con.cursor()
+	query = "SELECT abbrev FROM EXCHANGE;"
+	cursor.execute(query)
+	exchangeList = cursor.fetchall()
+	print(exchangeList)
 
-	# Create dataset of suffixes
+	# Create list of symbols
+	content = []
+	# Create dataset of symbols
 	for line in stocklist:
 
 		exchange = helpers.removeWhitespace(line[4])
@@ -106,7 +113,10 @@ def getWorldSymbols():
 		now = datetime.utcnow()
 		createdDate = now
 		lastUpdatedDate = now
-		content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
+
+		print(symbol in exchangeList)
+		if (symbol in exchangeList):
+			content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
 
 	return content
 
@@ -125,7 +135,7 @@ def getASXCompanies():
 	benchmark = None
 
 
-	count = 0;
+	count = 0
 	for symbol in asxCompanies:
 		count+=1; #counts the number of lines before entries should be entered (truncates first 3 lines)
 

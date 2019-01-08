@@ -7,8 +7,7 @@ CREATE TABLE CURRENCY(
 );
 
 CREATE TABLE EXCHANGE(
-	id						SERIAL 												,
-	abbrev 					VARCHAR(32)		NOT NULL							,
+	abbrev 					VARCHAR(32)			UNIQUE							,
 	suffix 					VARCHAR(32) 		NULL							,
 	name 					VARCHAR(255)	NOT NULL							,
 	city 					VARCHAR(255)		NULL							,
@@ -19,8 +18,7 @@ CREATE TABLE EXCHANGE(
 	close_time 				TIME 				NULL 							,
 	created_date			TIMESTAMP 		NOT NULL							,
 	last_updated_date 		TIMESTAMP 		NOT NULL							,
-	PRIMARY KEY 			(id)												,
-	FOREIGN KEY 			(currency) 		REFERENCES 		CURRENCY(code) 	
+	PRIMARY KEY 			(abbrev)											
 );
 
 CREATE TABLE DATA_VENDOR(
@@ -38,7 +36,7 @@ CREATE TABLE DATA_VENDOR(
 CREATE TABLE SYMBOL(
 	id 						SERIAL 												,
 	prev_id 				INTEGER 			NULL							,
-	exchange_id 			INTEGER 			NULL							,
+	exchange_code 			VARCHAR(32) 	NOT	NULL							,
 	ticker 					VARCHAR(32) 	NOT NULL							,
 	instrument 				VARCHAR(64) 	NOT NULL							,
 	name 					VARCHAR(255) 		NULL							,
@@ -50,7 +48,7 @@ CREATE TABLE SYMBOL(
 	created_date 			TIMESTAMP 		NOT NULL							,
 	last_updated_date 		TIMESTAMP 		NOT NULL							,
 	PRIMARY KEY 			(id)												,
-	FOREIGN KEY 			(exchange_id) 	REFERENCES 		EXCHANGE(id)		,
+	FOREIGN KEY 			(exchange_code)	REFERENCES 		EXCHANGE(abbrev)	,
 	FOREIGN KEY 			(prev_id) 		REFERENCES 		SYMBOL(id)			,
 	FOREIGN KEY 			(currency) 		REFERENCES 		CURRENCY(code)
 );

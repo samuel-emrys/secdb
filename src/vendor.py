@@ -37,6 +37,7 @@ def build(con):
 	insert_str = ("%s, " * 7)[:-2]
 	query = "INSERT INTO DATA_VENDOR (%s) VALUES (%s);" % (columns, insert_str)
 	database.insertmany(con, vendors, query)
+	con.commit()
 
 def parseVendor(element):
 	element = helpers.removeWhitespace(element)

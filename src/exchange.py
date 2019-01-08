@@ -24,8 +24,23 @@ def build(con):
 					- Look into techniques
 	'''
 
-	suffixes = getSuffixes()
+	exchanges = getExchanges()
 
+	exchanges = addTZData(exchanges)
+
+
+
+
+	for exchange in exchanges:
+		print(exchange)
+
+	columns = "abbrev, suffix, name, city, country, timezone, timezone_offset, open_time, close_time, created_date, last_updated_date"
+	insert_str = ("%s, " * 11)[:-2]
+	query = "INSERT INTO EXCHANGE (%s) VALUES (%s);" % (columns, insert_str)
+	database.insertmany(con, exchanges, query)
+	result = con.commit()
+
+def addTZData(exchanges):
 	NAME_ELEMENT = 0
 	ID_ELEMENT = 1
 	COUNTRY_ELEMENT = 2
@@ -43,10 +58,11 @@ def build(con):
 	page = requests.get(exchangeWikiURL)
 	tree = html.fromstring(page.content)
 	tr_elements = tree.xpath('//tr')
-	exchanges = []
+	wiki_exchanges = {}
+	content = []
 
 	for row in tr_elements:
-		suffix = None
+		# suffix = None
 		first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
 
 		if (len(row) == DATA_ROW_LENGTH and first_element != "Name"):
@@ -62,34 +78,56 @@ def build(con):
 			open_utc = parseTime(row[OPEN_UTC_ELEMENT].text_content())
 			close_utc = parseTime(row[CLOSE_UTC_ELEMENT].text_content())
 
-			suffixList = suffixes.get(abbr, 'N/A')
+			# suffixList = suffixes.get(abbr, 'N/A')
 
-			if (suffixList != 'N/A'):
-				suffix = suffixList[1]
-			else:
-				for key, values in suffixes.items():
-					# print(suffixList)
-					# print("%s, %s" % (values[0].upper(), name.upper()))
+			# if (suffixList != 'N/A'):
+			# 	suffix = suffixList[1]
+			# else:
+			# 	for key, values in suffixes.items():
+			# 		# print(suffixList)
+			# 		# print("%s, %s" % (values[0].upper(), name.upper()))
 
-					if (values[0].upper() == name.upper()):
-						suffix = values[1]
-						break
-						# TODO: Insert more advanced matching here
+			# 		if (values[0].upper() == name.upper()):
+			# 			suffix = values[1]
+			# 			break
+			# 			# TODO: Insert more advanced matching here
 
 			now = datetime.utcnow()
 			created_date = now
 			last_updated_date = now
 
-			exchanges.append( (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
+			wiki_exchanges[abbr] = (name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date)
+			# exchanges.append( (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
 			# print("%s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s" % (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date))
-	
-	columns = "abbrev, suffix, name, city, country, timezone, timezone_offset, open_time, close_time, created_date, last_updated_date"
-	insert_str = ("%s, " * 11)[:-2]
-	query = "INSERT INTO EXCHANGE (%s) VALUES (%s);" % (columns, insert_str)
-	database.insertmany(con, exchanges, query)
 
+	for exchange in exchanges:
+		abbr = exchange[0]
+		suffix = exchange[1]
+		exchangeDesc = exchange[2]
 
-def getSuffixes():
+		exchangeData = wiki_exchanges.get(abbr, None)
+
+		if (exchangeData != None):
+			name = exchangeData[0]
+			city = exchangeData[1]
+			country = exchangeData[2]
+			zone = exchangeData[3]
+			delta = exchangeData[4]
+			open_utc = exchangeData[5]
+			close_utcs = exchangeData[6]
+			created_date = exchangeData[7]
+			last_updated_date = exchangeData[8]
+
+			content.append( (abbr, suffix, exchangeDesc, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
+		else:
+			now = datetime.utcnow()
+			created_date = now
+			last_updated_date = now
+			content.append( (abbr, suffix, exchangeDesc, None, None, None, None, None, None, created_date, last_updated_date) )
+
+	return content
+
+def getExchanges():
 	# - https://www.worldtradingdata.com/download/list (Stocks)
 
 	stockListURL = "https://www.worldtradingdata.com/download/list"
@@ -126,7 +164,9 @@ def getSuffixes():
 	stocklist = csv.reader(csvfile)
 
 	# Create map of suffixes
-	content = {}
+	# content = {}
+	content = []
+	exchangeCount = {}
 
 	# Create dataset of suffixes
 	for line in stocklist:
@@ -137,7 +177,10 @@ def getSuffixes():
 		suffix = helpers.removeWhitespace(suffixList[-1])
 
 		if (exchange != 'N/A' and len(suffixList) > 1 and suffix != 'A' and suffix != 'B' and suffix != 'C' and suffix != 'V'):
-			content[exchange] = (exchangeDesc, suffix)
+			# content[exchange] = (exchangeDesc, suffix)
+			exchangeCount[exchange] = exchangeCount.get(exchange, 0) + 1
+			if (exchangeCount[exchange] == 1):
+				content.append( (exchange, suffix, exchangeDesc) )
 
 	print(str(len(content)) + " items downloaded")
 
