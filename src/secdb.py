@@ -3,6 +3,7 @@
 
 import sys
 import logging
+import re
 
 import currency
 import exchange
@@ -22,11 +23,14 @@ def build_database():
 	# f = float(f_string)
 	# print(str(f) + ": " + str(type(f)))
 
+	# out = re.match(r"(.*?)INDEX(.*)", "INDEXSTOXX")
+	# out = re.match(r"(.*?)INDEX(.*)", "fdsgdh")
+	# print(out)
 
 
 	# currency.build(con)
 	# vendor.build(con)
-	exchange.build(con)
+	# exchange.build(con)
 	symbol.build(con)
 	# price.build(con)
 

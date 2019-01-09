@@ -5,6 +5,7 @@ import io
 import logging
 import configparser
 import helpers
+import database
 
 from datetime import datetime
 from lxml import html
@@ -46,14 +47,15 @@ def build(con):
 	# print(worldSymbols)
 	# symbols = companySymbols + otherSymbols
 
-	print(len(worldSymbols))
-	for symbol in worldSymbols:
-		print(symbol)
+	# print(len(worldSymbols))
+	# for symbol in worldSymbols:
+	# 	print(symbol)
 
-	columns = "exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
+	columns = "exchange_code, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
 	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (columns, insert_str)
-	# database.insertmany(con, symbols, query)
+	database.insertmany(con, worldSymbols, query)
+	con.commit()
 
 def getWorldSymbols(con):
 
@@ -94,7 +96,9 @@ def getWorldSymbols(con):
 	cursor = con.cursor()
 	query = "SELECT abbrev FROM EXCHANGE;"
 	cursor.execute(query)
-	exchangeList = cursor.fetchall()
+	cursorOutput = cursor.fetchall()
+	exchangeList = [x[0] for x in cursorOutput]
+
 	print(exchangeList)
 
 	# Create list of symbols
@@ -105,6 +109,7 @@ def getWorldSymbols(con):
 		exchange = helpers.removeWhitespace(line[4])
 		name = helpers.removeWhitespace(line[1])
 		currency = helpers.removeWhitespace(line[2])
+		currency = parseCurrency(con, currency)
 		symbolList = line[0].split('.')
 
 		symbol = helpers.removeWhitespace(''.join(symbolList[:-1])) if len(symbolList) > 1 else helpers.removeWhitespace(symbolList[0])
@@ -114,8 +119,8 @@ def getWorldSymbols(con):
 		createdDate = now
 		lastUpdatedDate = now
 
-		print(symbol in exchangeList)
-		if (symbol in exchangeList):
+		# print(symbol in exchangeList)
+		if (exchange in exchangeList and currency != None):
 			content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
 
 	return content
@@ -319,8 +324,16 @@ def parseSector(sector):
 
 	return sector
 
-def parseCurrency(currency):
-	#mostly just a placeholder for future exchange data inclusion
+def parseCurrency(con, currency):
+	cursor = con.cursor()
+	query = "SELECT code FROM CURRENCY;"
+	cursor.execute(query)
+	cursorOutput = cursor.fetchall()
+	currencyList = [x[0] for x in cursorOutput]
+
+	if (currency not in currencyList):
+		currency = None
+
 	return currency
 
 

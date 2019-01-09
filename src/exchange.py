@@ -1,5 +1,5 @@
 import requests
-# import re
+import re
 import database
 import helpers
 import io
@@ -31,14 +31,14 @@ def build(con):
 
 
 
-	for exchange in exchanges:
-		print(exchange)
+	# for exchange in exchanges:
+	# 	print(exchange)
 
 	columns = "abbrev, suffix, name, city, country, timezone, timezone_offset, open_time, close_time, created_date, last_updated_date"
 	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO EXCHANGE (%s) VALUES (%s);" % (columns, insert_str)
 	database.insertmany(con, exchanges, query)
-	result = con.commit()
+	con.commit()
 
 def addTZData(exchanges):
 	NAME_ELEMENT = 0
@@ -174,13 +174,25 @@ def getExchanges():
 		exchange = helpers.removeWhitespace(line[4])
 		exchangeDesc = helpers.removeWhitespace(line[3])
 		suffixList = line[0].split('.')
-		suffix = helpers.removeWhitespace(suffixList[-1])
+		suffixToken = helpers.removeWhitespace(suffixList[-1])
 
-		if (exchange != 'N/A' and len(suffixList) > 1 and suffix != 'A' and suffix != 'B' and suffix != 'C' and suffix != 'V'):
-			# content[exchange] = (exchangeDesc, suffix)
+		if (suffixToken == 'A' or suffixToken == 'B' or suffixToken == 'C' or suffixToken == 'V' or len(suffixList) == 1):
+			suffix = None
+		else:
+			suffix = suffixToken
+
+		if (exchange != 'N/A' and not re.match(r"(.*?)INDEX(.*)", exchange) and ' ' not in exchange):
 			exchangeCount[exchange] = exchangeCount.get(exchange, 0) + 1
 			if (exchangeCount[exchange] == 1):
 				content.append( (exchange, suffix, exchangeDesc) )
+
+
+
+		# if (exchange != 'N/A' and len(suffixList) > 1 and suffix != 'A' and suffix != 'B' and suffix != 'C' and suffix != 'V'):
+		# 	# content[exchange] = (exchangeDesc, suffix)
+		# 	exchangeCount[exchange] = exchangeCount.get(exchange, 0) + 1
+		# 	if (exchangeCount[exchange] == 1):
+		# 		content.append( (exchange, suffix, exchangeDesc) )
 
 	print(str(len(content)) + " items downloaded")
 

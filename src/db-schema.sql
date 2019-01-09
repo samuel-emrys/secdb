@@ -38,7 +38,7 @@ CREATE TABLE SYMBOL(
 	prev_id 				INTEGER 			NULL							,
 	exchange_code 			VARCHAR(32) 	NOT	NULL							,
 	ticker 					VARCHAR(32) 	NOT NULL							,
-	instrument 				VARCHAR(64) 	NOT NULL							,
+	instrument 				VARCHAR(64) 		NULL							,
 	name 					VARCHAR(255) 		NULL							,
 	sector 					VARCHAR(255)		NULL							,
 	currency 				VARCHAR(32) 		NULL							,
