@@ -7,7 +7,7 @@ CREATE TABLE CURRENCY(
 );
 
 CREATE TABLE EXCHANGE(
-	abbrev 					VARCHAR(32)			UNIQUE							,
+	abbrev 					VARCHAR(32)		NOT NULL UNIQUE						,
 	suffix 					VARCHAR(32) 		NULL							,
 	name 					VARCHAR(255)	NOT NULL							,
 	city 					VARCHAR(255)		NULL							,
@@ -47,6 +47,7 @@ CREATE TABLE SYMBOL(
 	listing_date 			TIMESTAMP 			NULL							,
 	created_date 			TIMESTAMP 		NOT NULL							,
 	last_updated_date 		TIMESTAMP 		NOT NULL							,
+	UNIQUE 					(ticker, exchange_code) 							,
 	PRIMARY KEY 			(id)												,
 	FOREIGN KEY 			(exchange_code)	REFERENCES 		EXCHANGE(abbrev)	,
 	FOREIGN KEY 			(prev_id) 		REFERENCES 		SYMBOL(id)			,

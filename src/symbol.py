@@ -19,10 +19,21 @@ def build(con):
 					- https://www.worldtradingdata.com/download/list (Stocks)
 					- https://www.worldtradingdata.com/download/mutual/list (Mutual Funds)
 	'''
+	symbols = getOtherASXETP(con)
+	symbols = getASXCompanies(symbols)
 
-	worldSymbols = getWorldSymbols(con)
-	# companySymbols = getASXCompanies()
-	# otherSymbols = getOtherASXETP()
+	# symbols = asxCompanySymbols + asxOtherSymbols
+	symbols = getWorldSymbols(con, symbols)
+
+
+	# count = {}
+	# for symbol in symbols:
+	# 	key = symbol[1] + "." + symbol[0]
+	# 	count[key] = count.get(key, 0) + 1
+
+	# for key, value in count.items():
+	# 	if (value > 1):
+	# 		print(str(key) +":"+ str(value))
 
 	# cursor = con.cursor()
 	# query = "SELECT abbrev, id FROM EXCHANGE;"
@@ -54,10 +65,10 @@ def build(con):
 	columns = "exchange_code, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
 	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (columns, insert_str)
-	database.insertmany(con, worldSymbols, query)
+	database.insertmany(con, symbols, query)
 	con.commit()
 
-def getWorldSymbols(con):
+def getWorldSymbols(con, content):
 
 	stockListURL = "https://www.worldtradingdata.com/download/list"
 	login_url = "https://www.worldtradingdata.com/login"
@@ -98,12 +109,14 @@ def getWorldSymbols(con):
 	cursor.execute(query)
 	cursorOutput = cursor.fetchall()
 	exchangeList = [x[0] for x in cursorOutput]
-
-	print(exchangeList)
+	existingSymbols = [(x[1], x[0]) for x in content]
 
 	# Create list of symbols
-	content = []
+	# content = []
 	# Create dataset of symbols
+
+	# print(existingSymbols)
+
 	for line in stocklist:
 
 		exchange = helpers.removeWhitespace(line[4])
@@ -121,24 +134,34 @@ def getWorldSymbols(con):
 
 		# print(symbol in exchangeList)
 		if (exchange in exchangeList and currency != None):
-			content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
+
+			symbolPair = (symbol, exchange)
+			# existence = symbolPair not in existingSymbols
+			# print(symbolPair[0] + "." + symbolPair[1] + ":" + str(existence))
+
+			if (symbolPair not in existingSymbols):
+				content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
+				existingSymbols.append(symbolPair)
 
 	return content
 
-def getASXCompanies():
+def getASXCompanies(symbols):
 	asxCompanyURL = 'https://www.asx.com.au/asx/research/ASXListedCompanies.csv'
 	response = requests.get(asxCompanyURL)
 	csvfile = io.StringIO(response.text, newline='')
 	asxCompanies = csv.reader(csvfile)
 
 
-	symbols = []
+	# for symbol in existingSymbols:
+	# 	print(symbol)
+
+	# symbols = []
 	instrument = 'Shares'
 	currency = 'AUD'
 	exchange = 'ASX'
 	MER = None
 	benchmark = None
-
+	existingSymbols = [(x[1], x[0]) for x in symbols]
 
 	count = 0
 	for symbol in asxCompanies:
@@ -161,12 +184,16 @@ def getASXCompanies():
 
 			now = datetime.utcnow()
 			createdDate = now
-			lastUpdatedDate = now
-			symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, createdDate, lastUpdatedDate) );
+			lastUpdatedDate = now	
+
+			symbolPair = (ticker, exchange)
+			if (symbolPair not in existingSymbols):
+				symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, createdDate, lastUpdatedDate) );
+				existingSymbols.append(symbolPair)
 
 	return symbols
 
-def getOtherASXETP():
+def getOtherASXETP(con):
 
 	#Scrape https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm for other products
 	asxETPURL = 'https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm'
@@ -181,6 +208,7 @@ def getOtherASXETP():
 	sector = None
 	currency = 'AUD'
 	exchange = 'ASX'
+	existingSymbols = [(x[1], x[0]) for x in symbols]
 
 	for row in tr_elements:
 		first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
@@ -281,7 +309,7 @@ def getOtherASXETP():
 				instrument 		= parseInstrument(instrument)
 				name 			= parseName(name)
 				sector 			= parseSector(sector)
-				currency 		= parseCurrency(currency)
+				currency 		= parseCurrency(con, currency)
 				mer 			= parseMER(mer)
 				benchmark 		= parseBenchmark(benchmark)
 				listingDate 	= parseListingDate(listingDate, '%b-%y')
@@ -290,7 +318,12 @@ def getOtherASXETP():
 				now 			= datetime.utcnow()
 				lastUpdatedDate = now
 				createdDate 	= now
-				symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listingDate, createdDate, lastUpdatedDate) );
+
+
+				symbolPair = (ticker, exchange)
+				if (symbolPair not in existingSymbols):
+					symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listingDate, createdDate, lastUpdatedDate) );
+					existingSymbols.append(symbolPair)
 
 	return symbols
 
