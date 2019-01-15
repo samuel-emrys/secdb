@@ -6,6 +6,10 @@ import logging
 import configparser
 import helpers
 import database
+import requests, zipfile, io
+import sys
+from clint.textui import progress
+
 
 from datetime import datetime
 from lxml import html
@@ -14,54 +18,16 @@ from lxml import html
 def build(con):
 	'''
 		@TODO:
-				Incorporate worldtradingdata tickers
-				Source API's:
-					- https://www.worldtradingdata.com/download/list (Stocks)
-					- https://www.worldtradingdata.com/download/mutual/list (Mutual Funds)
+				Pull Historical ASX Symbols
+					- Try to find whether these have been delisted or not, and create links with symbols that changed names
 	'''
-	symbols = getOtherASXETP(con)
+	sys.stderr.write("Building Symbols...")
+	symbols = getASXHistoricalSymbols()
+	symbols = getOtherASXETP(con, symbols)
 	symbols = getASXCompanies(symbols)
-
-	# symbols = asxCompanySymbols + asxOtherSymbols
 	symbols = getWorldSymbols(con, symbols)
 
-
-	# count = {}
-	# for symbol in symbols:
-	# 	key = symbol[1] + "." + symbol[0]
-	# 	count[key] = count.get(key, 0) + 1
-
-	# for key, value in count.items():
-	# 	if (value > 1):
-	# 		print(str(key) +":"+ str(value))
-
-	# cursor = con.cursor()
-	# query = "SELECT abbrev, id FROM EXCHANGE;"
-	# cursor.execute(query)
-
-	# exchangeIDList = cursor.fetchall()
-
-	# exchangeID = dict(exchangeIDList)
-
-	# worldSymbols = []
-
-	# for symbol in worldSymbolsUnparsed:
-	# 	symid = exchangeID.get(symbol[0], None)
-	# 	symbol = list(symbol)
-	# 	symbol[0] = symid
-	# 	symbol = tuple(symbol)
-	# 	# print(symid)
-	# 	worldSymbols.append(symbol)
-
-
-	# worldSymbols = [i for i in worldSymbols if i[0] != None ]
-	# print(worldSymbols)
-	# symbols = companySymbols + otherSymbols
-
-	# print(len(worldSymbols))
-	# for symbol in worldSymbols:
-	# 	print(symbol)
-
+	# print(symbols)
 	columns = "exchange_code, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
 	insert_str = ("%s, " * 11)[:-2]
 	query = "INSERT INTO SYMBOL (%s) VALUES (%s);" % (columns, insert_str)
@@ -96,10 +62,7 @@ def getWorldSymbols(con, content):
 
 	# Log in to requests session, send post
 	r2 = session.post(login_url, data=data_credentials)
-
 	response = session.get(stockListURL, timeout=(15,15))
-
-	# response = requests.get(stockListURL)
 	csvfile = io.StringIO(response.text, newline='')
 	stocklist = csv.reader(csvfile)
 
@@ -111,12 +74,8 @@ def getWorldSymbols(con, content):
 	exchangeList = [x[0] for x in cursorOutput]
 	existingSymbols = [(x[1], x[0]) for x in content]
 
-	# Create list of symbols
-	# content = []
-	# Create dataset of symbols
 
-	# print(existingSymbols)
-
+	# Parse symbols in the stocklist, and add them to list for addition to database
 	for line in stocklist:
 
 		exchange = helpers.removeWhitespace(line[4])
@@ -136,9 +95,6 @@ def getWorldSymbols(con, content):
 		if (exchange in exchangeList and currency != None):
 
 			symbolPair = (symbol, exchange)
-			# existence = symbolPair not in existingSymbols
-			# print(symbolPair[0] + "." + symbolPair[1] + ":" + str(existence))
-
 			if (symbolPair not in existingSymbols):
 				content.append( (exchange, symbol, None, name, None, currency, None, None, None, now, now) )
 				existingSymbols.append(symbolPair)
@@ -146,16 +102,14 @@ def getWorldSymbols(con, content):
 	return content
 
 def getASXCompanies(symbols):
+
+	## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
+
 	asxCompanyURL = 'https://www.asx.com.au/asx/research/ASXListedCompanies.csv'
 	response = requests.get(asxCompanyURL)
 	csvfile = io.StringIO(response.text, newline='')
 	asxCompanies = csv.reader(csvfile)
 
-
-	# for symbol in existingSymbols:
-	# 	print(symbol)
-
-	# symbols = []
 	instrument = 'Shares'
 	currency = 'AUD'
 	exchange = 'ASX'
@@ -193,7 +147,7 @@ def getASXCompanies(symbols):
 
 	return symbols
 
-def getOtherASXETP(con):
+def getOtherASXETP(con, symbols):
 
 	#Scrape https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm for other products
 	asxETPURL = 'https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm'
@@ -201,7 +155,7 @@ def getOtherASXETP(con):
 
 	tree = html.fromstring(page.content)
 	tr_elements = tree.xpath('//tr')
-	symbols = []
+	# symbols = []
 
 	# Initialise table entry values
 	table_format = ""
@@ -327,6 +281,70 @@ def getOtherASXETP(con):
 
 	return symbols
 
+def getASXHistoricalSymbols():
+
+	baseURL = 'https://www.asxhistoricaldata.com/data/'
+	fileList = ['1997-2006.zip',
+				'2007-2012.zip',
+				'2013-2016.zip',
+				'2017july-december.zip',
+				'2017jan-june.zip',
+				'2018july-sept.zip',
+				'2018jan-june.zip']
+	symbols = []
+	exchange = 'ASX'
+	currency = 'AUD'
+	symbolCount = {}
+
+	for f in fileList:
+		url = baseURL + f
+		sys.stderr.write("\n")
+		print("Downloading %s from asxhistoricaldata.com" % f)
+
+		headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:64.0) Gecko/20100101 Firefox/64.0'}
+		
+		# Download zip content
+		r = requests.get(url, stream=True, headers=headers)
+		total_length = int(r.headers.get('content-length'))
+		content = []
+
+		# Show progress bar
+		for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1): 
+			if chunk:
+				# Append chunk to content list
+				content.append(chunk)
+
+		#Rejoin the zip file so it can be parsed
+		download = b"".join(content)
+
+		z = zipfile.ZipFile(io.BytesIO(download))
+
+		# Iterate through files in zip file
+		count = 0
+		for fileName in z.namelist():
+			count += 1
+			file = z.open(fileName, 'r')
+			# print("Parsing file %s/%s" % (count, len(z.namelist())))
+
+			sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(z.namelist()),f))
+			sys.stderr.flush()
+			# Get first element from each line (this is the symbol)
+			for line in file:
+				lineElements = line.decode().split(',')
+				ticker = lineElements[0]
+				symbolCount[ticker] = symbolCount.get(ticker, 0) + 1
+				# Make sure symbol is unique before adding to list
+				# if ticker not in symbols:
+				if symbolCount[ticker] == 1:
+					now 			= datetime.utcnow()
+					lastUpdatedDate = now
+					createdDate 	= now
+
+					symbols.append( (exchange, ticker, None, None, None, currency, None, None, None, createdDate, lastUpdatedDate) )
+
+	return symbols
+
+
 
 def parseTicker(ticker):
 	# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
@@ -399,9 +417,7 @@ def parseListingDate(listingDate, dateFormat):
 	
 	# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
 	listingDateString = listingDate.strip().translate( { ord(c):None for c in '\n\t\r' } )
-	#listingDate = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-	# listingDate = datetime.strptime('Jan-06', '%b-%y')
-	#if (listingDateString is not ''):
+
 	try:
 		listingDate = datetime.strptime(listingDateString, dateFormat)
 

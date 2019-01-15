@@ -4,7 +4,6 @@
 import sys
 import logging
 import re
-
 import currency
 import exchange
 import symbol
