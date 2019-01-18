@@ -11,8 +11,8 @@ class Exchange:
 		self.close_time = close_time
 
 	def __str__(self):
-		return self.abbrev + "," + self.suffix + "," + self.name + "," +
+		return (self.abbrev + "," + self.suffix + "," + self.name + "," +
 			self.city + "," + self.country + "," + self.timezone + "," +
-			self.timezone_offset + "," + self.open_time + "," + self.close_time
+			self.timezone_offset + "," + self.open_time + "," + self.close_time)
 
 

@@ -16,10 +16,10 @@ class Symbol:
 		self.last_updated_date = last_updated_date
 
 	def __str__(self):
-		return self.exchange_code + "," + self.ticker + "," + self.instrument + "," +
+		return (self.exchange_code + "," + self.ticker + "," + self.instrument + "," +
 			self.name + "," + self.sector + "," + self.currency + "," + self.mer + 
 			"," + self.benchmark + "," + self.listing_date + "," + self.created_date +
-			"," + self.last_updated_date
+			"," + self.last_updated_date)
 
 
 

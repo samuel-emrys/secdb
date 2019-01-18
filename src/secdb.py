@@ -10,33 +10,42 @@ import symbol
 import vendor
 import price
 import database
+import configparser
 
 from datetime import datetime
 from vendor import Vendor
 
 
-def build_database():
+def build_database(vendor):
 	con = database.connect()
 
-	# f_string = '-3'
-	# print(f_string + ": " + str(type(f_string)))
-	# f = float(f_string)
-	# print(str(f) + ": " + str(type(f)))
+	currency = []
+	exchange = []
+	symbols = []
+	prices = []
 
-	# out = re.match(r"(.*?)INDEX(.*)", "INDEXSTOXX")
-	# out = re.match(r"(.*?)INDEX(.*)", "fdsgdh")
-	# print(out)
+	for vendor in vendors:
+	# FIXME: This doesn't address the issue of merging data for insertion. 
+	# Perhaps the scope of these functions should just be to obtain data before 
+	# merging and populating the database
+		# currency.append(vendor.build_currency())
+		# exchange.append(vendor.build_exchanges())
+		symbols.append(vendor.build_symbols())
+		# prices.append(vendor.build_price())
+
+
+	#Need to merge these elements
 
 
 	# currency.build(con)
 	# vendor.build(con)
 	# exchange.build(con)
-	symbol.build(con)
+	# symbol.build(con)
 	# price.build(con)
 
 	# con.commit()
 	# cur.close()
-	con.close()
+	# con.close()
 
 def update_database():
 	exit()
@@ -57,7 +66,13 @@ def import_vendors():
 	# Read Configuration Contents
 	for vendor in config.sections():
 
-		vendor = Vendor.factory(vendor, config[vendor])
+		# print(config[vendor])
+
+		# print(Vendor.parse_vendor(config.get(vendor, 'name')))
+
+		vendor = Vendor.factory(vendor, config)
+
+		# print(vendor)
 
 		# name = parseVendor(config.get(vendor, 'name'))
 		# website_url = parseVendor(config.get(vendor, 'website_url'))
@@ -68,8 +83,8 @@ def import_vendors():
 		# now = datetime.utcnow()
 		# created_date = now
 		# last_updated_date = now
-
-		vendors.append( vendor )
+		if vendor is not None:
+			vendors.append( vendor )
 
 	return vendors
 
@@ -87,13 +102,7 @@ if __name__ == "__main__":
 	if (arg == "--build"):
 		logging.info(str(now) + " Build option selected. Building database.")
 
-		for vendor in vendors:
-			vendor.build_currency()
-			vendor.build_exchange()
-			vendor.build_symbol()
-			vendor.build_price()
-
-		# build_database()
+		build_database(vendors)
 
 	elif (arg == "--update"):
 		logging.info(str(now) + " Update option selected. Updating database.")
