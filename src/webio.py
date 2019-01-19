@@ -49,9 +49,6 @@ class WebIO:
 
 		content = []
 
-		sys.stderr.write("\n")
-		sys.stderr.write("Downloading %s from %s\n" % (file, urlStr))
-
 		headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:64.0) Gecko/20100101 Firefox/64.0'}
 		
 		download_url = url + file
@@ -60,9 +57,43 @@ class WebIO:
 		r = session.get(download_url, stream=True, headers=headers)
 		total_length = r.headers.get('content-length')
 
+		if (file == ''):
+			disposition_elements = {}
+			# TODO: this should be it's own function to parse content disposition
+			content_disposition = r.headers.get('content-disposition')
+			if (content_disposition is not None):
+				print(content_disposition)
+				parts = content_disposition.split()
+
+				for part in parts:
+					if '=' in part:
+						elements = part.split('=')
+						disposition_elements[elements[0]] = elements[1]
+
+				file = disposition_elements['filename']
+
+		sys.stderr.write("\n")
+		sys.stderr.write("Downloading %s from %s\n" % (file, urlStr))
+
+
+		# TODO: Find a progress bar package that handles both known and unknown sizes
 		if total_length is None:
-			content.append(r.content)
-			sys.stderr.write("[################################] 1/1 - 00:00:00")
+			count = 0
+			done = 0
+			for chunk in r.iter_content(chunk_size=1024):
+				count += 1
+				if chunk:
+
+					content.append(chunk)
+					if (count % 32 == 0):
+						done += 1
+						done = done % 32
+						sys.stderr.write("\r[%s%s] 0/1 - Unknown Time Remaining" % ('#' * done, ' ' * (32-done)))
+						sys.stderr.flush()
+
+			sys.stderr.write("\r[%s] 1/1 - 00:00 Done%s\n" % ('#' * 32, ' ' * 32))
+			sys.stderr.flush()
+
 		else:
 			# Show progress bar
 			total_length = int(total_length)
