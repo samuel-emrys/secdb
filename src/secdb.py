@@ -28,26 +28,17 @@ def build_database(vendor):
 	# FIXME: This doesn't address the issue of merging data for insertion. 
 	# Perhaps the scope of these functions should just be to obtain data before 
 	# merging and populating the database
-		# currency.append(vendor.build_currency())
-		# exchange.append(vendor.build_exchanges())
+		currency.append(vendor.build_currency())
+		exchange.append(vendor.build_exchanges())
 		symbols.append(vendor.build_symbols())
 		# prices.append(vendor.build_price())
 
-
-	#Need to merge these elements
-
-
-	# currency.build(con)
-	# vendor.build(con)
-	# exchange.build(con)
-	# symbol.build(con)
-	# price.build(con)
-
-	# con.commit()
-	# cur.close()
-	# con.close()
-
 def update_database():
+	for vendor in vendors:	vendor.update_currency()
+		vendor.update_exchange()
+		vendor.update_symbol()
+		vendor.update_price()
+	
 	exit()
 
 def help():
@@ -65,24 +56,7 @@ def import_vendors():
 
 	# Read Configuration Contents
 	for vendor in config.sections():
-
-		# print(config[vendor])
-
-		# print(Vendor.parse_vendor(config.get(vendor, 'name')))
-
 		vendor = Vendor.factory(vendor, config)
-
-		# print(vendor)
-
-		# name = parseVendor(config.get(vendor, 'name'))
-		# website_url = parseVendor(config.get(vendor, 'website_url'))
-		# support_email = parseVendor(config.get(vendor, 'support_email'))
-		# api_url = parseVendor(config.get(vendor, 'api_url'))
-		# api_key = parseVendor(config.get(vendor, 'api_key'))
-
-		# now = datetime.utcnow()
-		# created_date = now
-		# last_updated_date = now
 		if vendor is not None:
 			vendors.append( vendor )
 
@@ -106,12 +80,6 @@ if __name__ == "__main__":
 
 	elif (arg == "--update"):
 		logging.info(str(now) + " Update option selected. Updating database.")
-
-		for vendor in vendors:
-			vendor.update_currency()
-			vendor.update_exchange()
-			vendor.update_symbol()
-			vendor.update_price()
 
 		# update_database()
 

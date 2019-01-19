@@ -14,6 +14,11 @@ import io
 import re
 import zipfile
 import sys
+import xml.etree.ElementTree as ET
+
+from exchange import Exchange
+from currency import Currency
+from symbol import Symbol
 
 
 class Vendor:
@@ -30,16 +35,8 @@ class Vendor:
 	# String cast overload
 	def __str__(self):
 
-		properties = [self.name, self.website_url, self.support_email, self.api_url, self.api_key]
-		printString = ''
-
-		for prop in properties:
-			if prop is None:
-				printString = printString + ", None"
-			else:
-				printString = printString + ", " + prop
-
-		return printString
+		return (str(self.name) + "," + str(self.website_url) + "," + 
+			str(self.support_email) + "," + str(self.api_url) + "," + str(self.api_key))
 
 	# Symbol Helper methods
 	def parse_vendor(element):
@@ -132,6 +129,7 @@ class Vendor:
 
 	# Exchange Helper Methods
 	# @TODO: Put these in Exchange class, refactor method of parsing
+	# Actually, maybe I should make a vendor for wikipedia... content scraped from wikipedia should be parsed by the grabbing object
 	def parseName(self, name):
 		name = helpers.removeWhitespace(name)
 		name = helpers.removeWikipediaReferences(name)
@@ -213,6 +211,8 @@ class Vendor:
 			return VendorASXHistorical(name, website_url, support_email, api_url, api_key)
 		elif title == 'marketindex': 
 			logging.info(str(now) + ": Vendor '"+name+"' not currently supported. Skipping")
+		elif title == 'currencyiso':
+			return VendorCurrencyISO(name, website_url, support_email, api_url, api_key)
 		else:
 			logging.info(str(now) + ": Vendor '"+name+"' not currently supported. Skipping")
 
@@ -259,7 +259,8 @@ class Vendor:
 class VendorASX(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorASX, self).__init__(name, website_url, support_email, api_url, api_key)
-		self.company_url = 'https://www.asx.com.au/asx/research/ASXListedCompanies.csv'
+		self.company_url = 'https://www.asx.com.au/asx/research/'
+		self.company_file = 'ASXListedCompanies.csv'
 		self.etp_url = 'https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm'
 		self.symbols = []
 
@@ -283,8 +284,10 @@ class VendorASX(Vendor):
 
 	def build_companies(self):
 
-		response = requests.get(self.company_url)
-		csvfile = io.StringIO(response.text, newline='')
+		# response = requests.get(self.company_url)
+		download = WebIO.download(url=self.company_url, file=self.company_file)
+		download = download.decode('utf-8')
+		csvfile = io.StringIO(download, newline='')
 		companies = csv.reader(csvfile)
 
 		instrument = 'Shares'
@@ -292,21 +295,21 @@ class VendorASX(Vendor):
 		exchange = 'ASX'
 		MER = None
 		benchmark = None
-		existing_symbols = [(x[1], x[0]) for x in self.symbols]
+		existing_symbols = [(x.ticker, x.exchange_code) for x in self.symbols]
 
 		count = 0
-		for symbol in companies:
+		for company in companies:
 			count+=1; #counts the number of lines before entries should be entered (truncates first 3 lines)
 
-			if (len(symbol) > 0 and count > 3):
+			if (len(company) > 0 and count > 3):
 				ticker = None;
-				name = symbol[0];
+				name = company[0];
 				sector = None;
-				if (len(symbol) == 2):
-					ticker = symbol[1];
-				elif (len(symbol) == 3):
-					ticker = symbol[1];
-					sector = symbol[2];
+				if (len(company) == 2):
+					ticker = company[1];
+				elif (len(company) == 3):
+					ticker = company[1];
+					sector = company[2];
 
 				# Create a tuple in DB format and append to total list.
 				# Need to add query to DB to check if ticker already exists. If it doesn't, add "now" as created date, otherwise leave no entry for this
@@ -319,10 +322,14 @@ class VendorASX(Vendor):
 
 				symbol_pair = (ticker, exchange)
 				if (symbol_pair not in existing_symbols):
-					self.symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, created_date, last_updated_date) );
+					symbol = Symbol(exchange_code=exchange, ticker=ticker, instrument=instrument, 
+						name=name, sector=sector, currency=currency, mer=MER, benchmark=benchmark, 
+						created_date=created_date, last_updated_date=last_updated_date)
+					self.symbols.append(symbol)
+					# self.symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, created_date, last_updated_date) );
 					existing_symbols.append(symbol_pair)
 
-		# return symbols
+		# return self.symbols
 
 	def build_exchange_products(self):
 
@@ -336,10 +343,10 @@ class VendorASX(Vendor):
 		sector = None
 		currency = 'AUD'
 		exchange = 'ASX'
-		existing_symbols = [(x[1], x[0]) for x in self.symbols]
+		existing_symbols = [(x.ticker, x.exchange_code) for x in self.symbols]
 
 		for row in tr_elements:
-			first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
+			first_element = helpers.removeWhitespace(row[0].text_content())
 
 			# Identify which table is being parsed and define table format
 			if (first_element == "Exposure"):
@@ -347,7 +354,7 @@ class VendorASX(Vendor):
 					table_format = "LIC"
 				elif (len(row) == 6):
 					table_format = "AREITS"
-				elif (len(row) == 10 and row[3].text_content().strip() == "iNAV Code"):
+				elif (len(row) == 10 and helpers.removeWhitespace(row[3].text_content()) == "iNAV Code"):
 					table_format = "ETP"
 				else:
 					table_format = "ETP_SINGLE_ASSET"
@@ -450,7 +457,12 @@ class VendorASX(Vendor):
 
 					symbol_pair = (ticker, exchange)
 					if (symbol_pair not in existing_symbols):
-						self.symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date) );
+						symbol = Symbol(exchange_code=exchange, ticker=ticker, instrument=instrument, 
+							name=name, sector=sector, currency=currency, mer=mer, benchmark=benchmark, 
+							listing_date=listing_date, created_date=created_date, last_updated_date=last_updated_date)
+						self.symbols.append(symbol)
+
+						# self.symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date) );
 						existing_symbols.append(symbol_pair)
 
 		# return self.symbols
@@ -538,44 +550,17 @@ class VendorWorldTradingData(Vendor):
 
 		# return content
 
-
 	def build_exchanges(self):
 
-		# session = requests.Session() # create a requests Session
-		# r = session.get(self.login_url)
-
-		# ### Get token
-		# tree = html.fromstring(r.content)
-		# tokenValue = tree.xpath('//input[@name="_token"]/@value')
-		# token = str(tokenValue[0])
-		# # Form credentials
-		# credentialsFilename = 'credentials.conf'
-		
-		# # Load Configuration File
-		# credentials = configparser.RawConfigParser()
-		# credentials.read(credentialsFilename)
-
-		# for cred in credentials.sections():
-		# 	email = credentials.get(cred, 'user')
-		# 	password = credentials.get(cred, 'password')
-
-		# # Create credentials dictionary
-		# data_credentials = {'email': email, 'password': password, '_token': token}
-
-		# # Log in to requests session, send post
-		# r2 = session.post(self.login_url, data=data_credentials)
-
+		# Login and download file
 		session = WebIO.login(self.login_url)
 		download = WebIO.download(url=self.stock_url,session=session)
 
-		# response = session.get(self.stock_url, timeout=(15,15))
-
-		# response = requests.get(stockListURL)
-		# csvfile = io.StringIO(download.text, newline='')
+		# Read file as csv in memory
 		csvfile = io.StringIO(download.decode('utf-8'))
 		stocklist = csv.reader(csvfile)
 
-		# Create map of suffixes
+		# Create map of exchanges to count multiple instances of each
 		exchangeCount = {}
 
 		# Create dataset of suffixes
@@ -591,18 +576,18 @@ class VendorWorldTradingData(Vendor):
 			else:
 				suffix = suffixToken
 
-			if (exchange != 'N/A' and not re.match(r"(.*?)INDEX(.*)", exchange) and ' ' not in exchange):
+			if (exchange != 'N/A') and (not re.match(r"(.*?)INDEX(.*)", exchange)) and (' ' not in exchange):
 				exchangeCount[exchange] = exchangeCount.get(exchange, 0) + 1
 				if (exchangeCount[exchange] == 1):
-					self.exchanges.append( (exchange, suffix, exchangeDesc) )
+					exchangeObj = Exchange(abbrev=exchange, suffix=suffix, name=exchangeDesc)
+					self.exchanges.append( exchangeObj )
 
 
 		print(str(len(self.exchanges)) + " items downloaded")
 
 		self.addTZData()
 
-		# return content
-
+		return self.exchanges
 
 	def addTZData(self):
 		NAME_ELEMENT = 0
@@ -624,10 +609,9 @@ class VendorWorldTradingData(Vendor):
 		tr_elements = tree.xpath('//tr')
 		wiki_exchanges = {}
 		# content = []
-
 		for row in tr_elements:
-			# suffix = None
-			first_element = row[0].text_content().strip().translate( { ord(c):None for c in '\n\t\r' } )
+
+			first_element = helpers.removeWhitespace(row[0].text_content())
 
 			if (len(row) == DATA_ROW_LENGTH and first_element != "Name"):
 				name = self.parseName(row[NAME_ELEMENT].text_content())
@@ -642,54 +626,24 @@ class VendorWorldTradingData(Vendor):
 				open_utc = self.parseTime(row[OPEN_UTC_ELEMENT].text_content())
 				close_utc = self.parseTime(row[CLOSE_UTC_ELEMENT].text_content())
 
-				# suffixList = suffixes.get(abbr, 'N/A')
-
-				# if (suffixList != 'N/A'):
-				# 	suffix = suffixList[1]
-				# else:
-				# 	for key, values in suffixes.items():
-				# 		# print(suffixList)
-				# 		# print("%s, %s" % (values[0].upper(), name.upper()))
-
-				# 		if (values[0].upper() == name.upper()):
-				# 			suffix = values[1]
-				# 			break
-				# 			# TODO: Insert more advanced matching here
-
 				now = datetime.utcnow()
 				created_date = now
 				last_updated_date = now
 
 				wiki_exchanges[abbr] = (name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date)
-				# exchanges.append( (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
-				# print("%s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s" % (abbr, suffix, name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date))
 
 		for exchange in self.exchanges:
-			abbr = exchange[0]
-			suffix = exchange[1]
-			exchangeDesc = exchange[2]
 
-			exchangeData = wiki_exchanges.get(abbr, None)
+			exchangeData = wiki_exchanges.get(exchange.abbrev, None)
 
 			if (exchangeData != None):
-				name = exchangeData[0]
-				city = exchangeData[1]
-				country = exchangeData[2]
-				zone = exchangeData[3]
-				delta = exchangeData[4]
-				open_utc = exchangeData[5]
-				close_utcs = exchangeData[6]
-				created_date = exchangeData[7]
-				last_updated_date = exchangeData[8]
 
-				self.exchanges.append( (abbr, suffix, exchangeDesc, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date) )
-			else:
-				now = datetime.utcnow()
-				created_date = now
-				last_updated_date = now
-				self.exchanges.append( (abbr, suffix, exchangeDesc, None, None, None, None, None, None, created_date, last_updated_date) )
-
-		# return content
+				exchange.city = exchangeData[1]
+				exchange.country = exchangeData[2]
+				exchange.zone = exchangeData[3]
+				exchange.delta = exchangeData[4]
+				exchange.open_utc = exchangeData[5]
+				exchange.close_utc = exchangeData[6]
 
 class VendorASXHistorical(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
@@ -795,4 +749,66 @@ class VendorStooq(Vendor):
 class VendorIEX(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorIEX, self).__init__(name, website_url, support_email, api_url, api_key)
+
+class VendorCurrencyISO(Vendor):
+	def __init__(self, name, website_url, support_email, api_url, api_key):
+		super(VendorCurrencyISO, self).__init__(name, website_url, support_email, api_url, api_key)
+		self.file = 'list_one.xml'
+		self.currencies = []
+
+
+	def build_price(self):
+		pass
+
+	def build_currency(self):
+		# Scrape ISO 4217 Currency information
+		download = WebIO.download(url=self.api_url, file=self.file)
+		download = download.decode('utf-8')
+
+		root = ET.fromstring(download)
+		
+		currency_dict = dict()
+
+		# XML is ordered by country, so loop through countries
+		for country in root.find('CcyTbl').findall('CcyNtry'):
+			currencyName = self.parseCurrencyName(country.find('CcyNm').text)
+			try:
+				currencyAbbr = self.parseCurrencyAbbr(country.find('Ccy').text)
+				currencyNum = country.find('CcyNbr').text
+				currencyMinorUnit = self.parseMinorUnit(country.find('CcyMnrUnts').text)
+				currency_dict[currencyAbbr] = currency_dict.get(currencyAbbr, 0) + 1
+
+			except AttributeError:
+				currencyAbbr = None
+				currencyNum = None
+				currencyMinorUnit = None
+
+			# Currency has a primary key, and isn't a duplicate entry
+			if (currencyAbbr is not None and currency_dict[currencyAbbr] == 1):
+				currency = Currency(currencyAbbr, currencyNum, currencyName, currencyMinorUnit)
+				self.currencies.append( currency )
+
+		return self.currencies
+
+	def build_exchanges(self):
+		pass
+
+	def build_symbols(self):
+		pass
+
+	def parseMinorUnit(self, currencyMinorUnit):
+		try:
+			int(currencyMinorUnit)
+			return currencyMinorUnit
+		except ValueError:
+			return 0
+
+	def parseCountryName(self, countryName):
+		return countryName
+
+	def parseCurrencyName(self, currencyName):
+		return currencyName
+
+	def parseCurrencyAbbr(self, currencyAbbr):
+		return currencyAbbr
 

@@ -427,8 +427,4 @@ def parseListingDate(listingDate, dateFormat):
 	return listingDate
 
 
-	columns = "exchange_code, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date"
-
-
-
 
