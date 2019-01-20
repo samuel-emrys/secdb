@@ -41,10 +41,10 @@ secdb will maintain the following data:
 
 ## Dependencies
 
-Python 3.5.2 or higher
-psycopg2
-requests
-PostgreSQL
+* Python 3.5.2 or higher
+* psycopg2
+* requests
+* PostgreSQL
 
 ## Installation
 
@@ -56,6 +56,5 @@ TBD
 
 ## Usage
 
-secdb --build
-
-secdb --update
+	secdb --build
+	secdb --update

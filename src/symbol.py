@@ -1,4 +1,3 @@
-
 class Symbol:
 	def __init__(self, exchange_code, ticker, created_date, last_updated_date, instrument=None, name=None, sector=None, currency=None, mer=None,
 	 	benchmark=None, listing_date=None):

@@ -62,7 +62,7 @@ class WebIO:
 			# TODO: this should be it's own function to parse content disposition
 			content_disposition = r.headers.get('content-disposition')
 			if (content_disposition is not None):
-				print(content_disposition)
+				# print(content_disposition)
 				parts = content_disposition.split()
 
 				for part in parts:

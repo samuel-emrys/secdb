@@ -19,8 +19,8 @@ from vendor import Vendor
 def build_database(vendor):
 	con = database.connect()
 
-	currency = []
-	exchange = []
+	currencies = []
+	exchanges = []
 	symbols = []
 	prices = []
 
@@ -28,13 +28,14 @@ def build_database(vendor):
 	# FIXME: This doesn't address the issue of merging data for insertion. 
 	# Perhaps the scope of these functions should just be to obtain data before 
 	# merging and populating the database
-		currency.append(vendor.build_currency())
-		exchange.append(vendor.build_exchanges())
-		symbols.append(vendor.build_symbols())
+		currencies.append(vendor.build_currency())
+		exchanges.append(vendor.build_exchanges())
+		symbols.append(vendor.build_symbols(currencies))
 		# prices.append(vendor.build_price())
 
 def update_database():
-	for vendor in vendors:	vendor.update_currency()
+	for vendor in vendors:	
+		vendor.update_currency()
 		vendor.update_exchange()
 		vendor.update_symbol()
 		vendor.update_price()
@@ -69,18 +70,15 @@ if __name__ == "__main__":
 		now = datetime.utcnow()
 
 	logging.basicConfig(filename='log/secdb.log',level=logging.DEBUG)
-
 	vendors = import_vendors()
-
 	now = datetime.utcnow()
+
 	if (arg == "--build"):
 		logging.info(str(now) + " Build option selected. Building database.")
-
 		build_database(vendors)
 
 	elif (arg == "--update"):
 		logging.info(str(now) + " Update option selected. Updating database.")
-
 		# update_database()
 
 	elif (arg == "--help" or arg == "--h"):

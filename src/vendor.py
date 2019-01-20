@@ -3,6 +3,7 @@ from abc import abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from lxml import html
+from urllib.parse import urlparse
 
 import configparser
 import helpers
@@ -49,7 +50,7 @@ class Vendor:
 
 	def parseTicker(self, ticker):
 		# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-		ticker = ticker.strip().translate( { ord(c):None for c in '\n\t\r' } )
+		ticker = helpers.removeWhitespace(ticker)
 
 		# Could also check that it contains only uppercase characters, length 3-5 (what's the maximum ticker length?)
 		return ticker
@@ -77,14 +78,9 @@ class Vendor:
 		return sector
 
 	def parseCurrency(self, currency):
-		# cursor = con.cursor()
-		# query = "SELECT code FROM CURRENCY;"
-		# cursor.execute(query)
-		# cursorOutput = cursor.fetchall()
-		# currencyList = [x[0] for x in cursorOutput]
 
-		# if (currency not in currencyList):
-		# 	currency = None
+		if (currency not in self.currencies):
+			currency = None
 
 		return currency
 
@@ -222,7 +218,7 @@ class Vendor:
 
 	# Build methods
 	@abstractmethod
-	def build_symbols(self):
+	def build_symbols(self, currencies):
 		pass
 
 	@abstractmethod
@@ -274,9 +270,9 @@ class VendorASX(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self):
+	def build_symbols(self, currencies):
 		## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
-
+		self.currencies = currencies
 		self.build_companies()
 		self.build_exchange_products()
 
@@ -334,7 +330,6 @@ class VendorASX(Vendor):
 	def build_exchange_products(self):
 
 		page = requests.get(self.etp_url)
-
 		tree = html.fromstring(page.content)
 		tr_elements = tree.xpath('//tr')
 
@@ -481,7 +476,8 @@ class VendorWorldTradingData(Vendor):
 	def build_currency(self):
 		pass
 
-	def build_symbols(self):
+	def build_symbols(self, currencies):
+		self.currencies = currencies
 
 
 		# session = requests.Session() # create a requests Session
@@ -648,13 +644,9 @@ class VendorWorldTradingData(Vendor):
 class VendorASXHistorical(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorASXHistorical, self).__init__(name, website_url, support_email, api_url, api_key)
-		self.fileList = ['1997-2006.zip',
-					'2007-2012.zip',
-					'2013-2016.zip',
-					'2017july-december.zip',
-					'2017jan-june.zip',
-					'2018july-sept.zip',
-					'2018jan-june.zip']
+		self.archive_url = "https://www.asxhistoricaldata.com/archive/"
+		self.fileList = self.build_file_list()
+
 		self.exchange = 'ASX'
 		self.currency = 'AUD'
 		self.symbols = []
@@ -669,7 +661,8 @@ class VendorASXHistorical(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self):
+	def build_symbols(self, currencies):
+		self.currencies = currencies
 		
 		symbol_count = {}
 
@@ -725,6 +718,29 @@ class VendorASXHistorical(Vendor):
 						self.symbols.append( (self.exchange, ticker, None, None, None, self.currency, None, None, None, created_date, last_updated_date) )
 
 		# return symbols
+
+	def build_file_list(self):
+		file_list = []
+
+		historical_page = WebIO.download(self.archive_url).decode('utf-8')
+		historical_tree = html.fromstring(historical_page)
+
+		recent_page = WebIO.download(self.website_url).decode('utf-8')
+		recent_tree = html.fromstring(recent_page)
+
+		ha_elements = historical_tree.xpath('//a')
+		ra_elements = recent_tree.xpath('//a')
+
+		a_elements = ha_elements+ra_elements
+
+		for a in a_elements:
+			link = a.attrib['href']
+			if ".zip" in link:
+				file = link.split("/")[-1]
+				file_list.append(file)
+
+		return file_list
+
 
 class VendorMarketIndex(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
@@ -793,7 +809,7 @@ class VendorCurrencyISO(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self):
+	def build_symbols(self, currencies):
 		pass
 
 	def parseMinorUnit(self, currencyMinorUnit):
