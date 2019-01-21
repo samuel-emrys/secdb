@@ -45,6 +45,8 @@ secdb will maintain the following data:
 * psycopg2
 * requests
 * PostgreSQL
+* trio
+* clint
 
 ## Installation
 
