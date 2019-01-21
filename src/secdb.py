@@ -14,24 +14,37 @@ import configparser
 
 from datetime import datetime
 from vendor import Vendor
+from aggregator import Aggregator
 
 
 def build_database(vendor):
-	con = database.connect()
+	# con = database.connect()
 
 	currencies = []
 	exchanges = []
 	symbols = []
 	prices = []
+	agg = Aggregator()
+
+	# Using 4 loops, one for each dataset to be built. 
+	# Ensures that each dataset is fully built before building the next.
 
 	for vendor in vendors:
-	# FIXME: This doesn't address the issue of merging data for insertion. 
-	# Perhaps the scope of these functions should just be to obtain data before 
-	# merging and populating the database
 		currencies.append(vendor.build_currency())
+	agg.import_currencies(currencies)
+
+	for vendor in vendors:
 		exchanges.append(vendor.build_exchanges())
-		symbols.append(vendor.build_symbols(currencies))
-		# prices.append(vendor.build_price())
+	agg.import_exchanges(exchanges)
+
+	for vendor in vendors:
+		symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
+	agg.import_symbols(symbols)
+
+	# for vendor in vendors:
+	# 	prices.append(vendor.build_price())
+
+	# agg.import_prices(prices)
 
 def update_database():
 	for vendor in vendors:	

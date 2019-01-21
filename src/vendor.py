@@ -218,7 +218,7 @@ class Vendor:
 
 	# Build methods
 	@abstractmethod
-	def build_symbols(self, currencies):
+	def build_symbols(self, currencies, exchanges):
 		pass
 
 	@abstractmethod
@@ -270,7 +270,7 @@ class VendorASX(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self, currencies):
+	def build_symbols(self, currencies, exchanges):
 		## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
 		self.currencies = currencies
 		self.build_companies()
@@ -476,48 +476,16 @@ class VendorWorldTradingData(Vendor):
 	def build_currency(self):
 		pass
 
-	def build_symbols(self, currencies):
+	def build_symbols(self, currencies, exchanges):
 		self.currencies = currencies
 
-
-		# session = requests.Session() # create a requests Session
-		# r = session.get(self.login_url)
-
-		# ### Get token
-		# tree = html.fromstring(r.content)
-		# token_value = tree.xpath('//input[@name="_token"]/@value')
-		# token = str(token_value[0])
-		# # Form credentials
-		# cred_filename = 'credentials.conf'
-		
-		# # Load Configuration File
-		# credentials = configparser.RawConfigParser()
-		# credentials.read(cred_filename)
-
-		# for cred in credentials.sections():
-		# 	email = credentials.get(cred, 'user')
-		# 	password = credentials.get(cred, 'password')
-
-		# # Create credentials dictionary
-		# data_credentials = {'email': email, 'password': password, '_token': token}
-
-		# # Log in to requests session, send post
-		# r2 = session.post(login_url, data=data_credentials)
 		session = WebIO.login(self.login_url)
 		download = WebIO.download(url=self.stock_url,session=session)
 
-		# response = session.get(stockListURL, timeout=(15,15))
-		# csvfile = io.StringIO(download.text, newline='')
 		csvfile = io.StringIO(download.decode('utf-8'))
 		stocklist = csv.reader(csvfile)
 
-		# Get list of abbreviations in exchange list
-		# cursor = con.cursor()
-		# query = "SELECT abbrev FROM EXCHANGE;"
-		# cursor.execute(query)
-		# cursor_out = cursor.fetchall()
-		# exchange_list = [x[0] for x in cursor_out]
-		existing_symbols = [(x[1], x[0]) for x in self.symbols]
+		existing_symbols = [(x.ticker, x.exchange_code) for x in self.symbols]
 
 
 		# Parse symbols in the stocklist, and add them to list for addition to database
@@ -527,9 +495,9 @@ class VendorWorldTradingData(Vendor):
 			name = helpers.removeWhitespace(line[1])
 			currency = helpers.removeWhitespace(line[2])
 			currency = self.parseCurrency(currency)
-			symbol_list = line[0].split('.')
+			ticker_list = line[0].split('.')
 
-			symbol = helpers.removeWhitespace(''.join(symbol_list[:-1])) if len(symbol_list) > 1 else helpers.removeWhitespace(symbol_list[0])
+			ticker = helpers.removeWhitespace(''.join(ticker_list[:-1])) if len(ticker_list) > 1 else helpers.removeWhitespace(ticker_list[0])
 
 			# print("%s | %s | %s | %s" % (symbol, name, currency, exchange))
 			now = datetime.utcnow()
@@ -537,14 +505,16 @@ class VendorWorldTradingData(Vendor):
 			last_updated_date = now
 
 			# print(symbol in exchangeList)
-			# if (exchange in exchange_list and currency != None):
+			if (exchange in exchanges) and (currency != None):
+				symbol_pair = (ticker, exchange)
+				if (symbol_pair not in existing_symbols):
+					symbol = Symbol(exchange_code=exchange, ticker=ticker, name=name, currency=currency, created_date=created_date, last_updated_date=last_updated_date)
+					self.symbols.append(symbol)
 
-			symbol_pair = (symbol, exchange)
-			if (symbol_pair not in existing_symbols):
-				self.symbols.append( (exchange, symbol, None, name, None, currency, None, None, None, created_date, last_updated_date) )
-				existing_symbols.append(symbol_pair)
+					# self.symbols.append( (exchange, ticker, None, name, None, currency, None, None, None, created_date, last_updated_date) )
+					existing_symbols.append(symbol_pair)
 
-		# return content
+		return self.symbols
 
 	def build_exchanges(self):
 
@@ -577,9 +547,6 @@ class VendorWorldTradingData(Vendor):
 				if (exchangeCount[exchange] == 1):
 					exchangeObj = Exchange(abbrev=exchange, suffix=suffix, name=exchangeDesc)
 					self.exchanges.append( exchangeObj )
-
-
-		print(str(len(self.exchanges)) + " items downloaded")
 
 		self.addTZData()
 
@@ -661,36 +628,14 @@ class VendorASXHistorical(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self, currencies):
+	def build_symbols(self, currencies, exchanges):
 		self.currencies = currencies
 		
 		symbol_count = {}
 
 		for f in self.fileList:
-			# url = self.api_url + f
 
 			download = WebIO.download(url=self.api_url, file=f)
-
-
-
-			# sys.stderr.write("\n")
-			# sys.stderr.write("Downloading %s from asxhistoricaldata.com" % f)
-
-			# headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:64.0) Gecko/20100101 Firefox/64.0'}
-			
-			# # Download zip content
-			# r = requests.get(url, stream=True, headers=headers)
-			# total_length = int(r.headers.get('content-length'))
-			# content = []
-
-			# # Show progress bar
-			# for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1): 
-			# 	if chunk:
-			# 		# Append chunk to content list
-			# 		content.append(chunk)
-
-			# #Rejoin the zip file so it can be parsed
-			# download = b"".join(content)
 
 			z = zipfile.ZipFile(io.BytesIO(download))
 
@@ -699,7 +644,6 @@ class VendorASXHistorical(Vendor):
 			for fileName in z.namelist():
 				count += 1
 				file = z.open(fileName, 'r')
-				# print("Parsing file %s/%s" % (count, len(z.namelist())))
 
 				sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(z.namelist()),f))
 				sys.stderr.flush()
@@ -711,13 +655,15 @@ class VendorASXHistorical(Vendor):
 					# Make sure symbol is unique before adding to list
 					# if ticker not in symbols:
 					if symbol_count[ticker] == 1:
-						now 			= datetime.utcnow()
-						last_updated_date = now
-						created_date 	= now
+						now 				= datetime.utcnow()
+						last_updated_date 	= now
+						created_date 		= now
 
-						self.symbols.append( (self.exchange, ticker, None, None, None, self.currency, None, None, None, created_date, last_updated_date) )
+						symbol = Symbol(exchange_code=self.exchange, ticker=ticker, currency=self.currency, created_date=created_date, last_updated_date=last_updated_date)
+						self.symbols.append(symbol)
+						# self.symbols.append( (self.exchange, ticker, None, None, None, self.currency, None, None, None, created_date, last_updated_date) )
 
-		# return symbols
+		return self.symbols
 
 	def build_file_list(self):
 		file_list = []
@@ -740,7 +686,6 @@ class VendorASXHistorical(Vendor):
 				file_list.append(file)
 
 		return file_list
-
 
 class VendorMarketIndex(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
@@ -809,7 +754,7 @@ class VendorCurrencyISO(Vendor):
 	def build_exchanges(self):
 		pass
 
-	def build_symbols(self, currencies):
+	def build_symbols(self, currencies, exchanges):
 		pass
 
 	def parseMinorUnit(self, currencyMinorUnit):
