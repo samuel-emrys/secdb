@@ -57,20 +57,20 @@ class Vendor:
 
 	def parseInstrument(self, instrument):
 		# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-		instrument = instrument.strip().translate( { ord(c):None for c in '\n\t\r' } )
+		instrument = helpers.removeWhitespace(instrument)
 
 		return instrument
 
 	def parseName(self, name):
 		# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-		name = name.strip().translate( { ord(c):None for c in '\n\t\r' } )
+		name = helpers.removeWhitespace(name)
 
 		return name
 
 	def parseSector(self, sector):
 		if (sector != None):
 			# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-			sector = sector.strip().translate( { ord(c):None for c in '\n\t\r' } )
+			sector = helpers.removeWhitespace(sector)
 
 			if (sector == "#" or sector == "Not Applic"):
 				sector = None
@@ -87,14 +87,14 @@ class Vendor:
 	def parseMER(self, mer):
 		if (mer != None):
 			# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-			mer = mer.strip().translate( { ord(c):None for c in '\n\t\r' } )
+			mer = helpers.removeWhitespace(mer)
 
 			if (mer == "-"):
 				mer = None
 			# else if string doesn't match a decimal
 			elif not (re.match(r"^[0-9]{1,2}(.[0-9]+?)?$", mer)):
-				now = datetime.utcnow()
-				logging.debug(str(now) + " Invalid MER ' " + mer + "' identified. Sanitized with 'None'.")
+				# now = datetime.utcnow()
+				# logging.debug(str(now) + " Invalid MER ' " + mer + "' identified. Sanitized with 'None'.")
 				mer = None
 
 		return mer
@@ -102,25 +102,25 @@ class Vendor:
 	def parseBenchmark(self, benchmark):
 		if (benchmark != None):
 			# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-			benchmark = benchmark.strip().translate( { ord(c):None for c in '\n\t\r' } )
+			benchmark = helpers.removeWhitespace(benchmark)
 
 			if (benchmark == "-"):
 				benchmark = None
 
 		return benchmark
 
-	def parseListingDate(self, listingDate, dateFormat):
+	def parseListingDate(self, listing_date, date_format):
 		
 		# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-		listingDateString = listingDate.strip().translate( { ord(c):None for c in '\n\t\r' } )
+		listing_date_str = helpers.removeWhitespace(listing_date)
 
 		try:
-			listingDate = datetime.strptime(listingDateString, dateFormat)
+			listing_date = datetime.strptime(listing_date_str, date_format)
 
 		except ValueError:
-			listingDate = None
+			listing_date = None
 
-		return listingDate
+		return listing_date
 
 
 	# Exchange Helper Methods
@@ -135,33 +135,27 @@ class Vendor:
 	def parseAbbr(self, abbr):
 		abbr = helpers.removeWhitespace(abbr)
 		abbr = helpers.removeWikipediaReferences(abbr)
-
-		# abbr = re.sub(r"\[.*\]","", abbr)
 		return abbr
 
 	def parseCountry(self, country):
 		country = helpers.removeWhitespace(country)
 		country = helpers.removeWikipediaReferences(country)
-		# country = re.sub(r"\[.*\]","", country)
 		return country
 
 	def parseCity(self, city):
 		city = helpers.removeWhitespace(city)
 		city = helpers.removeWikipediaReferences(city)
-		# city = re.sub(r"\[.*\]","", city)
 		return city
 
 	def parseTimezone(self, timezone):
 		timezone = helpers.removeWhitespace(timezone)
 		timezone = helpers.removeWikipediaReferences(timezone)
-		# timezone = re.sub(r"\[.*\]","", timezone)
 		return timezone
 
 	def parseTZOffset(self, delta):
 		delta = helpers.removeWhitespace(delta)
 		delta = helpers.removeWikipediaReferences(delta)
 		delta = delta.replace("−", "-"); 
-		# delta = re.sub(r"\[.*\]","", delta)
 		delta = timedelta(hours=float(delta))
 
 		return delta
@@ -169,13 +163,11 @@ class Vendor:
 	def parseDST(self, dst):
 		dst = helpers.removeWhitespace(dst)
 		dst = helpers.removeWikipediaReferences(dst)
-		# dst = re.sub(r"\[.*\]","", dst)
 		return dst
 
 	def parseTime(self, time):
 		time = helpers.removeWhitespace(time)
 		time = helpers.removeWikipediaReferences(time)
-		# time = re.sub(r"\[.*\]","", time)
 		time = datetime.strptime(time,"%H:%M").time()
 
 		return time
@@ -250,8 +242,6 @@ class Vendor:
 	def update_exchanges(self):
 		pass
 
-
-
 class VendorASX(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorASX, self).__init__(name, website_url, support_email, api_url, api_key)
@@ -271,7 +261,6 @@ class VendorASX(Vendor):
 		pass
 
 	def build_symbols(self, currencies, exchanges):
-		## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
 		self.currencies = currencies
 		self.build_companies()
 		self.build_exchange_products()
@@ -280,7 +269,6 @@ class VendorASX(Vendor):
 
 	def build_companies(self):
 
-		# response = requests.get(self.company_url)
 		download = WebIO.download(url=self.company_url, file=self.company_file)
 		download = download.decode('utf-8')
 		csvfile = io.StringIO(download, newline='')
@@ -295,7 +283,8 @@ class VendorASX(Vendor):
 
 		count = 0
 		for company in companies:
-			count+=1; #counts the number of lines before entries should be entered (truncates first 3 lines)
+			# count the number of lines before entries should be entered (truncates first 3 lines)
+			count+=1; 
 
 			if (len(company) > 0 and count > 3):
 				ticker = None;
@@ -306,26 +295,23 @@ class VendorASX(Vendor):
 				elif (len(company) == 3):
 					ticker = company[1];
 					sector = company[2];
-
-				# Create a tuple in DB format and append to total list.
-				# Need to add query to DB to check if ticker already exists. If it doesn't, add "now" as created date, otherwise leave no entry for this
 				
-				sector = self.parseSector(sector)
 
+				sector = self.parseSector(sector)
 				now = datetime.utcnow()
 				created_date = now
 				last_updated_date = now	
-
 				symbol_pair = (ticker, exchange)
+
+				# Create symbol object to add to list
 				if (symbol_pair not in existing_symbols):
+
 					symbol = Symbol(exchange_code=exchange, ticker=ticker, instrument=instrument, 
 						name=name, sector=sector, currency=currency, mer=MER, benchmark=benchmark, 
 						created_date=created_date, last_updated_date=last_updated_date)
-					self.symbols.append(symbol)
-					# self.symbols.append( (exchange, ticker, instrument, name, sector, currency, MER, benchmark, None, created_date, last_updated_date) );
-					existing_symbols.append(symbol_pair)
 
-		# return self.symbols
+					self.symbols.append(symbol)
+					existing_symbols.append(symbol_pair)
 
 	def build_exchange_products(self):
 
@@ -444,23 +430,18 @@ class VendorASX(Vendor):
 					benchmark 		= self.parseBenchmark(benchmark)
 					listing_date 	= self.parseListingDate(listing_date, '%b-%y')
 
-					#print("%s | %s | %s | %s | %s | %s | %s | %s" % (name, ticker, instrument, sector, benchmark, MER, opFee, listingDate))
 					now 			= datetime.utcnow()
 					last_updated_date = now
 					created_date 	= now
-
-
 					symbol_pair = (ticker, exchange)
+
 					if (symbol_pair not in existing_symbols):
 						symbol = Symbol(exchange_code=exchange, ticker=ticker, instrument=instrument, 
 							name=name, sector=sector, currency=currency, mer=mer, benchmark=benchmark, 
 							listing_date=listing_date, created_date=created_date, last_updated_date=last_updated_date)
 						self.symbols.append(symbol)
 
-						# self.symbols.append( (exchange, ticker, instrument, name, sector, currency, mer, benchmark, listing_date, created_date, last_updated_date) );
 						existing_symbols.append(symbol_pair)
-
-		# return self.symbols
 
 class VendorWorldTradingData(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
@@ -481,12 +462,9 @@ class VendorWorldTradingData(Vendor):
 
 		session = WebIO.login(self.login_url)
 		download = WebIO.download(url=self.stock_url,session=session)
-
 		csvfile = io.StringIO(download.decode('utf-8'))
 		stocklist = csv.reader(csvfile)
-
 		existing_symbols = [(x.ticker, x.exchange_code) for x in self.symbols]
-
 
 		# Parse symbols in the stocklist, and add them to list for addition to database
 		for line in stocklist:
@@ -499,19 +477,19 @@ class VendorWorldTradingData(Vendor):
 
 			ticker = helpers.removeWhitespace(''.join(ticker_list[:-1])) if len(ticker_list) > 1 else helpers.removeWhitespace(ticker_list[0])
 
-			# print("%s | %s | %s | %s" % (symbol, name, currency, exchange))
 			now = datetime.utcnow()
 			created_date = now
 			last_updated_date = now
 
-			# print(symbol in exchangeList)
 			if (exchange in exchanges) and (currency != None):
 				symbol_pair = (ticker, exchange)
-				if (symbol_pair not in existing_symbols):
-					symbol = Symbol(exchange_code=exchange, ticker=ticker, name=name, currency=currency, created_date=created_date, last_updated_date=last_updated_date)
-					self.symbols.append(symbol)
 
-					# self.symbols.append( (exchange, ticker, None, name, None, currency, None, None, None, created_date, last_updated_date) )
+				if (symbol_pair not in existing_symbols):
+
+					symbol = Symbol(exchange_code=exchange, ticker=ticker, name=name, currency=currency, 
+						created_date=created_date, last_updated_date=last_updated_date)
+
+					self.symbols.append(symbol)
 					existing_symbols.append(symbol_pair)
 
 		return self.symbols
@@ -553,17 +531,7 @@ class VendorWorldTradingData(Vendor):
 		return self.exchanges
 
 	def addTZData(self):
-		NAME_ELEMENT = 0
-		ID_ELEMENT = 1
-		COUNTRY_ELEMENT = 2
-		CITY_ELEMENT = 3
-		ZONE_ELEMENT = 4
-		DELTA_ELEMENT = 5
-		DST_ELEMENT = 6
-		OPEN_LOCAL_ELEMENT = 7
-		CLOSE_LOCAL_ELEMENT = 8
-		OPEN_UTC_ELEMENT = 10
-		CLOSE_UTC_ELEMENT = 11
+
 		DATA_ROW_LENGTH = 13
 
 		exchangeWikiURL = 'https://en.wikipedia.org/wiki/List_of_stock_exchange_trading_hours'
@@ -571,29 +539,30 @@ class VendorWorldTradingData(Vendor):
 		tree = html.fromstring(page.content)
 		tr_elements = tree.xpath('//tr')
 		wiki_exchanges = {}
-		# content = []
+
 		for row in tr_elements:
 
 			first_element = helpers.removeWhitespace(row[0].text_content())
 
 			if (len(row) == DATA_ROW_LENGTH and first_element != "Name"):
-				name = self.parseName(row[NAME_ELEMENT].text_content())
-				abbr = self.parseAbbr(row[ID_ELEMENT].text_content())
-				country = self.parseCountry(row[COUNTRY_ELEMENT].text_content())
-				city = self.parseCity(row[CITY_ELEMENT].text_content())
-				zone = self.parseTimezone(row[ZONE_ELEMENT].text_content())
-				delta = self.parseTZOffset(row[DELTA_ELEMENT].text_content())
-				dst = self.parseDST(row[DST_ELEMENT].text_content())
-				open_local = self.parseTime(row[OPEN_LOCAL_ELEMENT].text_content())
-				close_local = self.parseTime(row[CLOSE_LOCAL_ELEMENT].text_content())
-				open_utc = self.parseTime(row[OPEN_UTC_ELEMENT].text_content())
-				close_utc = self.parseTime(row[CLOSE_UTC_ELEMENT].text_content())
+				name = self.parseName(row[0].text_content())
+				abbr = self.parseAbbr(row[1].text_content())
+				country = self.parseCountry(row[2].text_content())
+				city = self.parseCity(row[3].text_content())
+				zone = self.parseTimezone(row[4].text_content())
+				delta = self.parseTZOffset(row[5].text_content())
+				dst = self.parseDST(row[6].text_content())
+				open_local = self.parseTime(row[7].text_content())
+				close_local = self.parseTime(row[8].text_content())
+				open_utc = self.parseTime(row[10].text_content())
+				close_utc = self.parseTime(row[11].text_content())
 
 				now = datetime.utcnow()
 				created_date = now
 				last_updated_date = now
 
-				wiki_exchanges[abbr] = (name, city, country, zone, delta, open_utc, close_utc, created_date, last_updated_date)
+				wiki_exchanges[abbr] = Exchange(abbrev=abbr, name=name, city=city, country=country, timezone=zone, timezone_offset=delta, 
+					open_utc=open_utc, close_utc=close_utc)
 
 		for exchange in self.exchanges:
 
@@ -601,14 +570,19 @@ class VendorWorldTradingData(Vendor):
 
 			if (exchangeData != None):
 
-				exchange.city = exchangeData[1]
-				exchange.country = exchangeData[2]
-				exchange.zone = exchangeData[3]
-				exchange.delta = exchangeData[4]
-				exchange.open_utc = exchangeData[5]
-				exchange.close_utc = exchangeData[6]
+				exchange.city = exchangeData.city
+				exchange.country = exchangeData.country
+				exchange.timezone = exchangeData.timezone
+				exchange.timezone_offset = exchangeData.timezone_offset
+				exchange.open_utc = exchangeData.open_utc
+				exchange.close_utc = exchangeData.close_utc
 
 class VendorASXHistorical(Vendor):
+	'''
+		@TODO:
+				Pull Historical ASX Symbols
+					- Try to find whether these have been delisted or not, and create links with symbols that changed names
+	'''
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorASXHistorical, self).__init__(name, website_url, support_email, api_url, api_key)
 		self.archive_url = "https://www.asxhistoricaldata.com/archive/"
@@ -661,13 +635,13 @@ class VendorASXHistorical(Vendor):
 
 						symbol = Symbol(exchange_code=self.exchange, ticker=ticker, currency=self.currency, created_date=created_date, last_updated_date=last_updated_date)
 						self.symbols.append(symbol)
-						# self.symbols.append( (self.exchange, ticker, None, None, None, self.currency, None, None, None, created_date, last_updated_date) )
 
 		return self.symbols
 
 	def build_file_list(self):
 		file_list = []
 
+		# TODO: Implement custom print message parameter for WebIO.download function
 		historical_page = WebIO.download(self.archive_url).decode('utf-8')
 		historical_tree = html.fromstring(historical_page)
 
@@ -690,6 +664,7 @@ class VendorASXHistorical(Vendor):
 class VendorMarketIndex(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorMarketIndex, self).__init__(name, website_url, support_email, api_url, api_key)
+		## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
 
 class VendorQandl(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
@@ -757,19 +732,19 @@ class VendorCurrencyISO(Vendor):
 	def build_symbols(self, currencies, exchanges):
 		pass
 
-	def parseMinorUnit(self, currencyMinorUnit):
+	def parseMinorUnit(self, currency_minor_unit):
 		try:
-			int(currencyMinorUnit)
-			return currencyMinorUnit
+			int(currency_minor_unit)
+			return currency_minor_unit
 		except ValueError:
 			return 0
 
-	def parseCountryName(self, countryName):
-		return countryName
+	def parseCountryName(self, country_name):
+		return country_name
 
-	def parseCurrencyName(self, currencyName):
-		return currencyName
+	def parseCurrencyName(self, currency_name):
+		return currency_name
 
-	def parseCurrencyAbbr(self, currencyAbbr):
-		return currencyAbbr
+	def parseCurrencyAbbr(self, currency_abbr):
+		return currency_abbr
 

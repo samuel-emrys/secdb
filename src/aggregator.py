@@ -35,12 +35,18 @@ class Aggregator:
 				if key not in self.symbols:
 					self.symbols[key] = symbol
 
-		for key in self.symbols:
-			print(self.symbols[key])
-
-
 	def import_exchanges(self, exchanges):
-		
+		'''
+		@TODO
+		Improve matching between suffix and stock exchanges. Specific attention:
+				- Sao Paolo Stock Exchange
+				- New Zealand Stock Exchange
+				- Frankfurt Stock Exchange
+			Consider using regex to match first, first and second, first second third words
+				- Potentially develop confidence list and choose more confident if above threshold
+					- Dynamic programming?
+					- Look into techniques
+		'''
 		exchanges = [x for x in exchanges if x is not None]
 
 		for source in exchanges:
