@@ -29,20 +29,20 @@ def build_database(vendor):
 	# Using 4 loops, one for each dataset to be built. 
 	# Ensures that each dataset is fully built before building the next.
 
-	for vendor in vendors:
-		currencies.append(vendor.build_currency())
-	agg.import_currencies(currencies)
-
-	for vendor in vendors:
-		exchanges.append(vendor.build_exchanges())
-	agg.import_exchanges(exchanges)
-
-	for vendor in vendors:
-		symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
-	agg.import_symbols(symbols)
+	# for vendor in vendors:
+	# 	currencies.append(vendor.build_currency())
+	# agg.import_currencies(currencies)
 
 	# for vendor in vendors:
-	# 	prices.append(vendor.build_price())
+	# 	exchanges.append(vendor.build_exchanges())
+	# agg.import_exchanges(exchanges)
+
+	# for vendor in vendors:
+	# 	symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
+	# agg.import_symbols(symbols)
+	# print(vendors)
+	for vendor in vendors:
+		prices.append(vendor.build_price())
 
 	# agg.import_prices(prices)
 

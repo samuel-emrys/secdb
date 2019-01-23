@@ -20,6 +20,7 @@ import xml.etree.ElementTree as ET
 from exchange import Exchange
 from currency import Currency
 from symbol import Symbol
+from price import Price
 
 
 class Vendor:
@@ -109,18 +110,18 @@ class Vendor:
 
 		return benchmark
 
-	def parseListingDate(self, listing_date, date_format):
+	def parse_date(self, date, date_format):
 		
 		# Remove extraneous white space from left and right of string, and remove tabs/new line characters from middle of string
-		listing_date_str = helpers.removeWhitespace(listing_date)
+		date_str = helpers.removeWhitespace(date)
 
 		try:
-			listing_date = datetime.strptime(listing_date_str, date_format)
+			date = datetime.strptime(date, date_format)
 
 		except ValueError:
-			listing_date = None
+			date = None
 
-		return listing_date
+		return date
 
 
 	# Exchange Helper Methods
@@ -172,6 +173,15 @@ class Vendor:
 
 		return time
 
+
+	# Price Helper Methods
+
+	def parse_price(self, price):
+		price = helpers.removeWhitespace(price)
+		price = price.replace('$','')
+
+		return price
+
 	# Factory to generate appropriate subclass
 	def factory(title, config):
 		name = Vendor.parse_vendor(config.get(title, 'name'))
@@ -198,7 +208,7 @@ class Vendor:
 		elif title == 'asxhistoricaldata': 
 			return VendorASXHistorical(name, website_url, support_email, api_url, api_key)
 		elif title == 'marketindex': 
-			logging.info(str(now) + ": Vendor '"+name+"' not currently supported. Skipping")
+			return VendorMarketIndex(name, website_url, support_email, api_url, api_key)
 		elif title == 'currencyiso':
 			return VendorCurrencyISO(name, website_url, support_email, api_url, api_key)
 		else:
@@ -428,7 +438,7 @@ class VendorASX(Vendor):
 					currency 		= self.parseCurrency(currency)
 					mer 			= self.parseMER(mer)
 					benchmark 		= self.parseBenchmark(benchmark)
-					listing_date 	= self.parseListingDate(listing_date, '%b-%y')
+					listing_date 	= self.parse_date(listing_date, '%b-%y')
 
 					now 			= datetime.utcnow()
 					last_updated_date = now
@@ -664,7 +674,39 @@ class VendorASXHistorical(Vendor):
 class VendorMarketIndex(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorMarketIndex, self).__init__(name, website_url, support_email, api_url, api_key)
-		## Scrape https://www.marketindex.com.au/asx-listed-companies to confirm list complete
+		self.prices = {}
+
+	def build_price(self):
+		self.exchange = 'ASX'
+
+		price_page 		= WebIO.download(self.api_url).decode('utf-8')
+		price_tree 		= html.fromstring(price_page)
+
+		div 			= price_tree.xpath('//div[@class="header-timestamp"]')[0]
+		time_phrase 	= div.text_content()
+		date_str 		= time_phrase.replace('At the close on ','')
+		date 			= self.parse_date(date_str, '%d %b %Y')
+
+		table 			= price_tree.xpath('//table[@id="asx_sp_table"]')[0]
+		rows 			= table.xpath('./tbody/tr')
+
+		for row in rows:
+			ticker 		= self.parseTicker(row[2].text_content())
+			price 		= self.parse_price(row[4].text_content())
+
+			now			= datetime.utcnow()
+			priceObj 	= Price(price_date=date, symbol=ticker, close_price=price, vendor=self, created_date=now, last_updated_date=now)
+			key 		= (ticker, self.exchange)
+			self.prices[key] = priceObj
+
+	def build_currency(self):
+		pass
+
+	def build_exchanges(self):
+		pass
+
+	def build_symbols(self, currencies, exchanges):
+		pass
 
 class VendorQandl(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
