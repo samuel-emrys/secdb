@@ -596,15 +596,57 @@ class VendorASXHistorical(Vendor):
 	def __init__(self, name, website_url, support_email, api_url, api_key):
 		super(VendorASXHistorical, self).__init__(name, website_url, support_email, api_url, api_key)
 		self.archive_url = "https://www.asxhistoricaldata.com/archive/"
-		self.fileList = self.build_file_list()
+		self.file_list = self.build_file_list()
+		self.zip_list = {}
 
 		self.exchange = 'ASX'
 		self.currency = 'AUD'
 		self.symbols = []
+		self.prices = []
 
 
 	def build_price(self):
-		pass
+
+		for zip_name in self.zip_list:
+			sys.stderr.write("\n")
+
+			count = 0
+			for file_name in self.zip_list[zip_name].namelist():
+				count += 1
+				file = self.zip_list[zip_name].open(file_name,'r')
+				sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(self.zip_list[zip_name].namelist()),zip_name))
+				sys.stderr.flush()
+
+				file_name_str = file_name.split('.')[0].split('/')[1]
+				date = self.parse_date(file_name_str,'%Y%m%d')
+
+				# Ticker, Date, Open, High, Low, Close, Volume. 
+				for line in file:
+					line_elements 	= line.decode().split(',')
+					ticker 			= line_elements[0]
+					open_price 		= line_elements[2]
+					high_price 		= line_elements[3]
+					low_price 		= line_elements[4]
+					close_price 	= line_elements[5]
+					volume 			= line_elements[6]
+					now				= datetime.utcnow()
+
+					if (date is not None):
+						price = Price(price_date=date,vendor=VendorASXHistorical, symbol=ticker, open_price=open_price, high_price=high_price, 
+						low_price=low_price, close_price=close_price, volume=volume, created_date=now, last_updated_date=now)
+
+						self.prices.append(price)
+		
+		print_no = 0;
+		for price in self.prices:
+			print_no += 1
+			print(price)
+
+			if print_no > 10:
+				break
+
+		return self.prices
+
 
 	def build_currency(self):
 		pass
@@ -617,17 +659,19 @@ class VendorASXHistorical(Vendor):
 		
 		symbol_count = {}
 
-		for f in self.fileList:
+		for f in self.file_list:
 
 			download = WebIO.download(url=self.api_url, file=f)
 
 			z = zipfile.ZipFile(io.BytesIO(download))
 
+			self.zip_list[f] = z
+
 			# Iterate through files in zip file
 			count = 0
-			for fileName in z.namelist():
+			for file_name in z.namelist():
 				count += 1
-				file = z.open(fileName, 'r')
+				file = z.open(file_name, 'r')
 
 				sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(z.namelist()),f))
 				sys.stderr.flush()
@@ -698,6 +742,8 @@ class VendorMarketIndex(Vendor):
 			priceObj 	= Price(price_date=date, symbol=ticker, close_price=price, vendor=self, created_date=now, last_updated_date=now)
 			key 		= (ticker, self.exchange)
 			self.prices[key] = priceObj
+
+		return self.prices
 
 	def build_currency(self):
 		pass
