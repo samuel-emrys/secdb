@@ -16,6 +16,8 @@ import re
 import zipfile
 import sys
 import xml.etree.ElementTree as ET
+import json
+import time
 
 from exchange import Exchange
 from currency import Currency
@@ -259,13 +261,60 @@ class VendorASX(Vendor):
 		self.company_file = 'ASXListedCompanies.csv'
 		self.etp_url = 'https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm'
 		self.symbols = []
+		self.prices = []
 
 
 	def build_currency(self):
 		pass
 
-	def build_price(self):
-		pass
+	def build_price(self, symbols):
+		
+		symbols_au = [x for x in self.symbols if x.exchange_code == 'ASX']
+
+		for symbol in symbols_au:
+			query = self.api_url.replace('SYMBOL',symbol.ticker)
+
+			download = WebIO.download(query).decode('utf-8')
+
+			# Handles rate limiting of site
+			while "<!DOCTYPE html>" in download:
+				download = WebIO.download(query).decode('utf-8')
+				time.sleep(35)
+
+
+			if ("id-or-code-invalid" not in download) and (download is not None):
+				print(symbol.ticker)
+				try:
+					json_prices = json.loads(download)
+
+				except json.decoder.JSONDecodeError:
+					print(download)
+					break
+
+				for field in json_prices:
+					for price_dict in json_prices[field]:
+						now 			= datetime.utcnow()
+						# This date needs to have timezone information. currently being truncated in conversion
+						date_str 		= price_dict['close_date']
+						date_str 		= date_str.split('T')[0]
+						price_date 		= self.parse_date(date_str,'%Y-%m-%d')
+						ticker 			= price_dict['code']
+						open_price 		= price_dict['close_price']-price_dict['change_price']
+						high_price 		= price_dict['day_high_price']
+						low_price 		= price_dict['day_low_price']
+						close_price 	= price_dict['close_price']
+						volume 			= price_dict['volume']
+
+						if (price_date is not None):
+							price = Price(vendor=VendorASX, price_date=price_date, symbol=ticker,
+								created_date=now, last_updated_date=now, open_price=open_price, 
+								high_price=high_price, low_price=low_price, close_price=close_price,
+								volume=volume)
+
+							self.prices.append(price)
+
+
+		print("Length of prices: " + str(len(self.prices)))
 
 	def build_exchanges(self):
 		pass
@@ -461,7 +510,7 @@ class VendorWorldTradingData(Vendor):
 		self.symbols = []
 		self.exchanges = []
 
-	def build_price(self):
+	def build_price(self, symbols):
 		pass
 
 	def build_currency(self):
@@ -605,47 +654,38 @@ class VendorASXHistorical(Vendor):
 		self.prices = []
 
 
-	def build_price(self):
+	def build_price(self, symbols):
+		pass
+		# for zip_name in self.zip_list:
+		# 	sys.stderr.write("\n")
 
-		for zip_name in self.zip_list:
-			sys.stderr.write("\n")
+		# 	count = 0
+		# 	for file_name in self.zip_list[zip_name].namelist():
+		# 		count += 1
+		# 		file = self.zip_list[zip_name].open(file_name,'r')
+		# 		sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(self.zip_list[zip_name].namelist()),zip_name))
+		# 		sys.stderr.flush()
 
-			count = 0
-			for file_name in self.zip_list[zip_name].namelist():
-				count += 1
-				file = self.zip_list[zip_name].open(file_name,'r')
-				sys.stderr.write("\rParsing file [%s/%s] in %s" % (count, len(self.zip_list[zip_name].namelist()),zip_name))
-				sys.stderr.flush()
+		# 		file_name_str = file_name.split('.')[0].split('/')[1]
+		# 		date = self.parse_date(file_name_str,'%Y%m%d')
 
-				file_name_str = file_name.split('.')[0].split('/')[1]
-				date = self.parse_date(file_name_str,'%Y%m%d')
+		# 		# Ticker, Date, Open, High, Low, Close, Volume. 
+		# 		for line in file:
+		# 			line_elements 	= line.decode().split(',')
+		# 			ticker 			= line_elements[0]
+		# 			open_price 		= line_elements[2]
+		# 			high_price 		= line_elements[3]
+		# 			low_price 		= line_elements[4]
+		# 			close_price 	= line_elements[5]
+		# 			volume 			= line_elements[6]
+		# 			now				= datetime.utcnow()
 
-				# Ticker, Date, Open, High, Low, Close, Volume. 
-				for line in file:
-					line_elements 	= line.decode().split(',')
-					ticker 			= line_elements[0]
-					open_price 		= line_elements[2]
-					high_price 		= line_elements[3]
-					low_price 		= line_elements[4]
-					close_price 	= line_elements[5]
-					volume 			= line_elements[6]
-					now				= datetime.utcnow()
+		# 			if (date is not None):
+		# 				price = Price(price_date=date,vendor=VendorASXHistorical, symbol=ticker, open_price=open_price, high_price=high_price, 
+		# 				low_price=low_price, close_price=close_price, volume=volume, created_date=now, last_updated_date=now)
 
-					if (date is not None):
-						price = Price(price_date=date,vendor=VendorASXHistorical, symbol=ticker, open_price=open_price, high_price=high_price, 
-						low_price=low_price, close_price=close_price, volume=volume, created_date=now, last_updated_date=now)
-
-						self.prices.append(price)
-		
-		print_no = 0;
-		for price in self.prices:
-			print_no += 1
-			print(price)
-
-			if print_no > 10:
-				break
-
-		return self.prices
+		# 				self.prices.append(price)
+			# TODO: Insert self.prices to database, too large to append outside this.
 
 
 	def build_currency(self):
@@ -720,7 +760,7 @@ class VendorMarketIndex(Vendor):
 		super(VendorMarketIndex, self).__init__(name, website_url, support_email, api_url, api_key)
 		self.prices = {}
 
-	def build_price(self):
+	def build_price(self, symbols):
 		self.exchange = 'ASX'
 
 		price_page 		= WebIO.download(self.api_url).decode('utf-8')
@@ -781,7 +821,7 @@ class VendorCurrencyISO(Vendor):
 		self.currencies = []
 
 
-	def build_price(self):
+	def build_price(self, symbols):
 		pass
 
 	def build_currency(self):

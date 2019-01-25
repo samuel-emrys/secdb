@@ -42,7 +42,7 @@ def build_database(vendor):
 	agg.import_symbols(symbols)
 
 	for vendor in vendors:
-		prices.append(vendor.build_price())
+		prices.append(vendor.build_price(agg.symbols))
 
 	# agg.import_prices(prices)
 
