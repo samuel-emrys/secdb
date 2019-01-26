@@ -7,13 +7,14 @@ import re
 import currency
 import exchange
 import symbol
-import vendor
+# import vendor
 import price
 import database
 import configparser
+from vendors.factory import VendorFactory
 
 from datetime import datetime
-from vendor import Vendor
+from vendors.vendor import Vendor
 from aggregator import Aggregator
 
 
@@ -41,8 +42,8 @@ def build_database(vendor):
 		symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
 	agg.import_symbols(symbols)
 
-	for vendor in vendors:
-		prices.append(vendor.build_price(agg.symbols))
+	# for vendor in vendors:
+	# 	prices.append(vendor.build_price(agg.symbols))
 
 	# agg.import_prices(prices)
 
@@ -70,9 +71,14 @@ def import_vendors():
 
 	# Read Configuration Contents
 	for vendor in config.sections():
-		vendor = Vendor.factory(vendor, config)
+		factory = VendorFactory()
+		vendor = factory(vendor, config)
 		if vendor is not None:
 			vendors.append( vendor )
+
+		# vendor = Vendor.factory(vendor, config)
+		# if vendor is not None:
+		# 	vendors.append( vendor )
 
 	return vendors
 
@@ -82,7 +88,7 @@ if __name__ == "__main__":
 		arg = sys.argv[1]
 		now = datetime.utcnow()
 
-	logging.basicConfig(filename='log/secdb.log',level=logging.DEBUG)
+	logging.basicConfig(filename='../log/secdb.log',level=logging.DEBUG)
 	vendors = import_vendors()
 	now = datetime.utcnow()
 
