@@ -10,9 +10,9 @@ from price import Price
 
 
 class VendorCurrencyISO(Vendor):
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
         super(VendorCurrencyISO, self).__init__(
-            name, website_url, support_email, api_url, api_key
+            name, website_url, support_email, api
         )
         self.file = "list_one.xml"
         self.currencies = []

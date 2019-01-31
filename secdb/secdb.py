@@ -5,6 +5,7 @@ import sys
 import logging
 import argparse
 import configparser
+import json
 
 from datetime import datetime
 from aggregator import Aggregator
@@ -39,7 +40,7 @@ def build_database(vendor):
     # agg.import_prices(prices)
 
 
-def update_database():
+def update_database(vendors):
     for vendor in vendors:
         vendor.update_currency()
         vendor.update_exchange()
@@ -60,60 +61,48 @@ def import_vendors():
     config_filename = "vendors.conf"
 
     # Load Configuration File
-    config = configparser.RawConfigParser()
-    config.read(config_filename)
+    with open(config_filename) as json_data_file:
+        config = json.load(json_data_file)
 
-    # Read Configuration Contents
-    for vendor in config.sections():
+    # Read Configuration Contents and create class object
+    for vendor in config:
         factory = VendorFactory()
         vendor = factory(vendor, config)
         if vendor is not None:
             vendors.append(vendor)
 
-            # vendor = Vendor.factory(vendor, config)
-            # if vendor is not None:
-            # 	vendors.append( vendor )
-
     return vendors
 
 
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    """
-    parser = argparse.ArgumentParser(description='Create a ArcHydro schema')
-    parser.add_argument('--workspace', metavar='path', required=True,
-                        help='the path to workspace')
-    parser.add_argument('--schema', metavar='path', required=True,
-                        help='path to schema')
-    parser.add_argument('--dem', metavar='path', required=True,
-                        help='path to dem')
-    args = parser.parse_args()
-    main(workspace=args.workspace, schema=args.schema, dem=args.dem)
-    """
-
-    arg = ""
-    if len(sys.argv) > 1:
-        arg = sys.argv[1]
-        now = datetime.utcnow()
+def main(build=None, update=None):
 
     logging.basicConfig(filename="../log/secdb.log", level=logging.DEBUG)
-    vendors = import_vendors()
     now = datetime.utcnow()
 
-    if arg == "--build":
+    vendors = import_vendors()
+    if (build):
         logging.info(str(now) + " Build option selected. Building database.")
         build_database(vendors)
 
-    elif arg == "--update":
+    elif (update):
         logging.info(str(now) + " Update option selected. Updating database.")
-        # update_database()
+        # update_database(vendors)
 
-    elif arg == "--help" or arg == "--h":
-        help()
-    else:
-        print("Invalid argument.")
-        help()
-        exit()
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description="Build and update a securities \
+        master database"
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--build", action="store_true", help="Build the database from scratch"
+    )
+
+    group.add_argument(
+        "--update", action="store_true", help="Update the database with daily \
+         values"
+    )
+    args = parser.parse_args()
+    main(build=args.build, update=args.update)

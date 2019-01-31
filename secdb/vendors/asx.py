@@ -4,6 +4,7 @@ import csv
 import requests
 from lxml import html
 from datetime import datetime
+from datetime import time
 
 from utils.webio import WebIO
 from vendors.vendor import Vendor
@@ -16,9 +17,10 @@ from price import Price
 
 
 class VendorASX(Vendor):
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
+
         super(VendorASX, self).__init__(
-            name, website_url, support_email, api_url, api_key
+            name, website_url, support_email, api
         )
         self.company_url = "https://www.asx.com.au/asx/research/"
         self.company_file = "ASXListedCompanies.csv"
@@ -30,7 +32,7 @@ class VendorASX(Vendor):
     def build_currency(self):
         pass
 
-    def build_price(self, symbols):
+    def build_prices(self, symbols):
         symbols_au = [x for x in self.symbols if x.exchange_code == "ASX"]
 
         for symbol in symbols_au:
@@ -43,8 +45,9 @@ class VendorASX(Vendor):
                 download = WebIO.download(query).decode("utf-8")
                 time.sleep(35)
 
-            if ("id-or-code-invalid" not in download) and (
-                download is not None
+            if (
+                ("id-or-code-invalid" not in download)
+                and (download is not None)
             ):
                 print(symbol.ticker)
                 try:

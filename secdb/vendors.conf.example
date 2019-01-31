@@ -1,48 +1,102 @@
-[asx]
-name=ASX
-website_url=https://www.asx.com.au
-support_email=NA
-api_url=https://www.asx.com.au/asx/1/share/EVN/prices?interval=daily&count=30
-api_key=
+{
+	"worldtradingdata": {
+		"name":"World Trading Data",
+		"website_url":"https://www.worldtradingdata.com/",
+		"doc_url":"https://www.worldtradingdata.com/documentation",
+		"api": [{
+			"historical": {
+				"url":"https://www.worldtradingdata.com/api/v1/history",
+				"key":""
+			}
+		},
+		{
+			"daily": {
+				"url":"https://www.worldtradingdata.com/api/v1/history_multi_single_day",
+				"key":""
+			}
+		}]
+	},
 
-[alphavantage]
-name=Alpha Vantage
-website_url=https://www.alphavantage.co/
-support_email=support@alphavantage.co
-api_url=https://www.alphavantage.co/query?function=
-api_key=
+	"asx": {
+		"name":"Australian Stock Exchange",
+		"website_url":"https://www.asx.com.au",
+		"api": [{
+			"url":"https://www.asx.com.au/asx/1/share/SYMBOL/prices?interval=daily&count=1000",
+			"key":""
+		}]
+	},
 
-[quandl]
-name=Quandl
-website_url=https://www.quandl.com
-support_email=NA
-api_url=https://www.quandl.com/api/v3/datasets/WIKI/AAPL.csv?start_date=2010-01-01&api_key=...
-api_key=
+	"alphavantage": {
+		"name":"Alpha Vantage",
+		"website_url":"https://www.alphavantage.co/",
+		"support_email":"support@alphavantage.co",
+		"api": [{
+			"url":"https://www.alphavantage.co/query?function=",
+			"key":""
+		}]
+	},
 
-[worldtradingdata]
-name=World Trading Data
-website_url=https://www.worldtradingdata.com/
-support_email=NA
-api_url=https://www.worldtradingdata.com/api/v1/stock?symbol=AAPL,MSFT,HSBA.L&api_token=demo
-api_key=
+	"quandl": {
+		"name":"Quandl",
+		"website_url":"https://www.quandl.com",
+		"api": [{
+			"url":"https://www.quandl.com/api/v3/datasets/WIKI/AAPL.csv?start_date=2010-01-01&api_key=...",
+			"key":""
+		}]
+	},
 
-[barchart]
-name=Barchart
-website_url=https://www.barchart.com/
-support_email=NA
-api_url=https://marketdata.websol.barchart.com/getQuote.json?apikey=YOUR_API_KEY&symbols=AAPL%2CGOOG&fields=fiftyTwoWkHigh%2CfiftyTwoWkHighDate%2CfiftyTwoWkLow%2CfiftyTwoWkLowDate
-api_key=
+	"barchart": {
+		"name":"Barchart",
+		"website_url":"https://www.barchart.com/",
+		"api":[{
+			"url":"https://marketdata.websol.barchart.com/getQuote.json?apikey=YOUR_API_KEY&symbols=AAPL%2CGOOG&fields=fiftyTwoWkHigh%2CfiftyTwoWkHighDate%2CfiftyTwoWkLow%2CfiftyTwoWkLowDate",
+			"key":""
+		}]
+	},
 
-[stooq]
-name=Stooq
-website_url=https://stooq.pl/
-support_email=NA
-api_url=https://stooq.com/q/d/l/?s=AAPL.US&i=d
-api_key=
+	"stooq": {
+		"name":"Stooq",
+		"website_url":"https://stooq.pl/",
+		"api":[{
+			"url":"https://stooq.com/q/d/l/?s=AAPL.US&i=d",
+			"key":""
+		}]
+	},
 
-[iex]
-name=IEX
-website_url=https://iextrading.com/
-support_email=NA
-api_url=NA
-api_key=NA
+	"iex": {
+		"name":"IEX",
+		"website_url":"https://iextrading.com/",
+		"doc_url":"https://iextrading.com/developer/docs/",
+		"api":[{
+			"url":"https://api.iextrading.com/1.0",
+			"key":""
+		}]
+	},
+
+	"asxhistoricaldata": {
+		"name":"ASX Historical Data",
+		"website_url":"https://www.asxhistoricaldata.com/",
+		"api":[{
+			"url":"https://www.asxhistoricaldata.com/data/",
+			"key":""
+		}]
+	},
+
+	"marketindex": {
+		"name":"Market Index",
+		"website_url":"https://www.marketindex.com.au/",
+		"api":[{
+			"url":"https://www.marketindex.com.au/asx-listed-companies",
+			"key":""
+		}]
+	},
+
+	"currencyiso": {
+		"name":"Currency-ISO",
+		"website_url":"https://www.currency-iso.org",
+		"api":[{
+			"url":"https://www.currency-iso.org/dam/downloads/lists/",
+			"key":""
+		}]
+	}
+}

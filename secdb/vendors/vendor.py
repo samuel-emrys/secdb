@@ -9,27 +9,20 @@ class Vendor:
     # Abstract vendor class, individual vendors inherit from this
 
     # Constructor
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
         self.name = name
         self.website_url = website_url
         self.support_email = support_email
-        self.api_url = api_url
-        self.api_key = api_key
 
     # String cast overload
     def __str__(self):
 
-        return (
-            str(self.name)
-            + ","
-            + str(self.website_url)
-            + ","
-            + str(self.support_email)
-            + ","
-            + str(self.api_url)
-            + ","
-            + str(self.api_key)
-        )
+        out = [
+            str(self.name),
+            str(self.website_url),
+            str(self.support_email),
+        ]
+        return ",".join(out)
 
     # Symbol Helper methods
     def parse_vendor(element):
@@ -186,7 +179,7 @@ class Vendor:
         pass
 
     @abstractmethod
-    def build_prices(self):
+    def build_prices(self, symbols):
         pass
 
     @abstractmethod

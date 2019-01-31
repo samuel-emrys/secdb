@@ -2,6 +2,7 @@ import io
 import csv
 import re
 import requests
+import json
 import utils.helpers as helpers
 from datetime import datetime
 from utils.webio import WebIO
@@ -14,16 +15,22 @@ from price import Price
 
 
 class VendorWorldTradingData(Vendor):
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
         super(VendorWorldTradingData, self).__init__(
-            name, website_url, support_email, api_url, api_key
+            name, website_url, support_email, api
         )
         self.stock_url = "https://www.worldtradingdata.com/download/list"
         self.login_url = "https://www.worldtradingdata.com/login"
+        self.historical_url = "https://www.worldtradingdata.com/api/v1/history"
+        self.single_day_url = "https://www.worldtradingdata.com/api/v1/history_multi_single_day"
         self.symbols = []
         self.exchanges = []
+        key = self.api_key.strip().split()
+        self.historical_key = key[0]
+        self.single_day_key = key[1]
 
     def build_price(self, symbols):
+        # Since this is rate limited, just do as part of update function
         pass
 
     def build_currency(self):
@@ -176,3 +183,40 @@ class VendorWorldTradingData(Vendor):
                 exchange.timezone_offset = exchangeData.timezone_offset
                 exchange.open_utc = exchangeData.open_utc
                 exchange.close_utc = exchangeData.close_utc
+
+    def update_price(self, symbols):
+        pass
+
+    def get_historical_prices(self):
+        """
+            Steps:
+            1. get list of symbols
+            2. find symbols in database with no data prior to created date
+            3. for up to 250 symbols, get historical data
+        """
+        symbols = []
+        for symbol in symbols:
+            query_list = [
+                self.historical_url,
+                "?symbol=",
+                symbol,
+                "&sort=newest&api_token=",
+                self.historical_key
+            ]
+
+            api_query = "".join(query_list)
+
+            download = WebIO.download(api_query).decode('utf-8')
+            json_prices = json.loads(download)
+
+            # import aapl.json from tests/ to test parsing - limited to 250
+            #  req/day
+
+    def get_daily_prices(self):
+        """
+            Steps:
+            1. get list of symbols
+            2. find symbols in database with no data prior to created date
+            3. Chunk into groups of 20 symbols and request all data
+        """
+        pass

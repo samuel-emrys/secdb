@@ -21,9 +21,9 @@ class VendorASXHistorical(Vendor):
             links with symbols that changed names
     """
 
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
         super(VendorASXHistorical, self).__init__(
-            name, website_url, support_email, api_url, api_key
+            name, website_url, support_email, api
         )
         self.archive_url = "https://www.asxhistoricaldata.com/archive/"
         self.file_list = self.build_file_list()

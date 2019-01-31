@@ -9,9 +9,9 @@ from price import Price
 
 
 class VendorMarketIndex(Vendor):
-    def __init__(self, name, website_url, support_email, api_url, api_key):
+    def __init__(self, name, website_url, support_email, api):
         super(VendorMarketIndex, self).__init__(
-            name, website_url, support_email, api_url, api_key
+            name, website_url, support_email, api
         )
         self.prices = {}
 

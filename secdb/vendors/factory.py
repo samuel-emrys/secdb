@@ -1,5 +1,6 @@
 import utils.helpers as helpers
 import logging
+import requests
 from datetime import datetime
 from vendors.vendor import Vendor
 from vendors.asx import VendorASX
@@ -30,19 +31,16 @@ class VendorFactory:
         }
 
     def __call__(self, vendor_name, config):
-        name = self._parse_config(config.get(vendor_name, "name"))
-        website_url = self._parse_config(
-            config.get(vendor_name, "website_url")
-        )
-        support_email = self._parse_config(
-            config.get(vendor_name, "support_email")
-        )
-        api_url = self._parse_config(config.get(vendor_name, "api_url"))
-        api_key = self._parse_config(config.get(vendor_name, "api_key"))
+
+        api = config[vendor_name].get('api', None)
+        name = config[vendor_name].get('name', None)
+        website_url = config[vendor_name].get('website_url', None)
+        support_email = config[vendor_name].get('support_email', None)
         now = datetime.utcnow()
+
         try:
             obj = self.factory[vendor_name.lower()](
-                name, website_url, support_email, api_url, api_key
+                name, website_url, support_email, api
             )
             return obj
 
@@ -52,10 +50,3 @@ class VendorFactory:
                 name
                 )
             logging.info(out)
-
-    def _parse_config(self, element):
-        element = helpers.removeWhitespace(element)
-        if element == "NA" or element == "":
-            return None
-
-        return element
