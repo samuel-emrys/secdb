@@ -28,16 +28,16 @@ class Price:
 
     def __str__(self):
         out = [
-            self.vendor,
-            self.symbol,
-            self.price_date,
-            self.created_date,
-            self.last_updated_date,
-            self.open_price,
-            self.high_price,
-            self.low_price,
-            self.close_price,
-            self.adj_close_price,
-            self.volume,
+            str(self.vendor),
+            str(self.symbol),
+            str(self.price_date),
+            str(self.created_date),
+            str(self.last_updated_date),
+            str(self.open_price),
+            str(self.high_price),
+            str(self.low_price),
+            str(self.close_price),
+            str(self.adj_close_price),
+            str(self.volume),
         ]
         return ",".join(out)

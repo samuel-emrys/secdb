@@ -10,8 +10,6 @@ from utils.webio import WebIO
 from vendors.vendor import Vendor
 import utils.helpers as helpers
 
-from exchange import Exchange
-from currency import Currency
 from symbol import Symbol
 from price import Price
 

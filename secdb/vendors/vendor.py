@@ -13,6 +13,7 @@ class Vendor:
         self.name = name
         self.website_url = website_url
         self.support_email = support_email
+        self.api = api
 
     # String cast overload
     def __str__(self):

@@ -15,7 +15,7 @@ class VendorMarketIndex(Vendor):
         )
         self.prices = {}
 
-    def build_price(self, symbols):
+    def build_prices(self, symbols):
         self.exchange = "ASX"
 
         price_page = WebIO.download(self.api_url).decode("utf-8")

@@ -1,8 +1,5 @@
-import utils.helpers as helpers
 import logging
-import requests
 from datetime import datetime
-from vendors.vendor import Vendor
 from vendors.asx import VendorASX
 from vendors.asxh import VendorASXHistorical
 from vendors.currencyiso import VendorCurrencyISO

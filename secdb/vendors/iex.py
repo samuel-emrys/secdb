@@ -1,6 +1,7 @@
 from vendors.vendor import Vendor
 from utils.webio import WebIO
 import json
+import logging
 from datetime import datetime
 from price import Price
 
@@ -35,45 +36,49 @@ class VendorIEX(Vendor):
                 "changeOverTime":0
             },
         """
-        for symbol in symbols:
-            query = self.api_url.replace("SYMBOL", symbol.ticker)
+        for symbol_key in symbols:
+            symbol = symbols[symbol_key]
+
+            try:
+                query = self.api['url'] + "/stock/" + symbol.ticker + "/chart/5y"
+            except KeyError:
+                logging.debug("IEX API url not provided")
 
             download = WebIO.download(query).decode("utf-8")
-            json_prices = json.loads(download)
 
             if (
                 ("Unknown symbol" not in download)
                 and (download is not None)
             ):
-                for field in json_prices:
-                    for price_dict in json_prices[field]:
-                        now = datetime.utcnow()
-                        # This date needs to have timezone information.
-                        # currently being truncated in conversion
-                        date_str = price_dict["date"]
-                        price_date = self.parse_date(date_str, "%Y-%m-%d")
-                        ticker = symbol.ticker
-                        open_price = price_dict["open"]
-                        high_price = price_dict["high"]
-                        low_price = price_dict["low"]
-                        close_price = price_dict["close"]
-                        volume = price_dict["volume"]
+                json_prices = json.loads(download)
 
-                        if price_date is not None:
-                            price = Price(
-                                vendor=VendorIEX,
-                                price_date=price_date,
-                                symbol=ticker,
-                                created_date=now,
-                                last_updated_date=now,
-                                open_price=open_price,
-                                high_price=high_price,
-                                low_price=low_price,
-                                close_price=close_price,
-                                volume=volume,
-                            )
+                for price_dict in json_prices:
+                    now = datetime.utcnow()
+                    date_str = price_dict.get("date", None)
+                    price_date = self.parse_date(date_str, "%Y-%m-%d")
+                    ticker = symbol.ticker
+                    open_price = price_dict.get("open", None)
+                    high_price = price_dict.get("high", None)
+                    low_price = price_dict.get("low", None)
+                    close_price = price_dict.get("close", None)
+                    volume = price_dict.get("volume", None)
 
-                            self.prices.append(price)
+                    if price_date is not None:
+                        price = Price(
+                            vendor=VendorIEX,
+                            price_date=price_date,
+                            symbol=ticker,
+                            created_date=now,
+                            last_updated_date=now,
+                            open_price=open_price,
+                            high_price=high_price,
+                            low_price=low_price,
+                            close_price=close_price,
+                            volume=volume,
+                        )
+                        print(price)
+
+                        # self.prices.append(price)
 
     def build_currency(self):
         pass
@@ -94,3 +99,12 @@ class VendorIEX(Vendor):
 
     def update_exchanges(self):
         pass
+
+
+if __name__ == "__main__":
+    json_filename = "../tests/aapl-iex.json"
+    with open(json_filename) as json_data_file:
+        symbols = json.load(json_data_file)
+
+    vendor = VendorIEX("IEX", "iex.com", "test@test", "api")
+    vendor.build_prices(symbols)

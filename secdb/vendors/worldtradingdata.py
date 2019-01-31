@@ -29,7 +29,7 @@ class VendorWorldTradingData(Vendor):
         self.historical_key = key[0]
         self.single_day_key = key[1]
 
-    def build_price(self, symbols):
+    def build_prices(self, symbols):
         # Since this is rate limited, just do as part of update function
         pass
 

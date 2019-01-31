@@ -1,27 +1,25 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys
 import logging
 import argparse
-import configparser
 import json
 
 from datetime import datetime
 from aggregator import Aggregator
 from vendors.factory import VendorFactory
+from vendors.iex import VendorIEX
 
 
-def build_database(vendor):
-    # con = database.connect()
+def build_database(vendors):
     currencies = []
     exchanges = []
     symbols = []
     prices = []
     agg = Aggregator()
+
     # Using 4 loops, one for each dataset to be built.
     # Ensures that each dataset is fully built before building the next.
-
     for vendor in vendors:
         currencies.append(vendor.build_currency())
     agg.import_currencies(currencies)
@@ -34,8 +32,12 @@ def build_database(vendor):
         symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
     agg.import_symbols(symbols)
 
-    # for vendor in vendors:
-    # 	prices.append(vendor.build_price(agg.symbols))
+    # print(agg.symbols)
+
+    for vendor in vendors:
+        print(type(vendor))
+        if (type(vendor) == VendorIEX):
+            prices.append(vendor.build_prices(agg.symbols))
 
     # agg.import_prices(prices)
 

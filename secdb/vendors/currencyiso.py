@@ -1,12 +1,8 @@
 from utils.webio import WebIO
 from vendors.vendor import Vendor
-import utils.helpers as helpers
 import xml.etree.ElementTree as ET
 
-from exchange import Exchange
 from currency import Currency
-from symbol import Symbol
-from price import Price
 
 
 class VendorCurrencyISO(Vendor):
@@ -17,12 +13,13 @@ class VendorCurrencyISO(Vendor):
         self.file = "list_one.xml"
         self.currencies = []
 
-    def build_price(self, symbols):
+    def build_prices(self, symbols):
         pass
 
     def build_currency(self):
         # Scrape ISO 4217 Currency information
-        download = WebIO.download(url=self.api_url, file=self.file)
+
+        download = WebIO.download(url=self.api.get('url', None), file=self.file)
         download = download.decode("utf-8")
 
         root = ET.fromstring(download)

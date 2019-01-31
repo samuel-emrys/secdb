@@ -1,25 +1,21 @@
 import zipfile
 import sys
 import io
-import utils.helpers as helpers
 
 from datetime import datetime
 from utils.webio import WebIO
 from vendors.vendor import Vendor
 from lxml import html
-from exchange import Exchange
-from currency import Currency
 from symbol import Symbol
 from price import Price
 
 
 class VendorASXHistorical(Vendor):
-    """
-        @TODO:
-            Pull Historical ASX Symbols
-            - Try to find whether these have been delisted or not, and create
-            links with symbols that changed names
-    """
+
+    # @TODO:
+    #     Pull Historical ASX Symbols
+    #     - Try to find whether these have been delisted or not, and create
+    #     links with symbols that changed names
 
     def __init__(self, name, website_url, support_email, api):
         super(VendorASXHistorical, self).__init__(
@@ -34,7 +30,7 @@ class VendorASXHistorical(Vendor):
         self.symbols = []
         self.prices = []
 
-    def build_price(self, symbols):
+    def build_prices(self, symbols):
         for zip_name in self.zip_list:
             sys.stderr.write("\n")
 
@@ -97,21 +93,19 @@ class VendorASXHistorical(Vendor):
 
         for f in self.file_list:
 
-            download = WebIO.download(url=self.api_url, file=f)
+            download = WebIO.download(url=self.api.get('url', None), file=f)
 
-            z = zipfile.ZipFile(io.BytesIO(download))
-
-            self.zip_list[f] = z
+            self.zip_list[f] = zipfile.ZipFile(io.BytesIO(download))
 
             # Iterate through files in zip file
             count = 0
-            for file_name in z.namelist():
+            for file_name in self.zip_list[f].namelist():
                 count += 1
-                file = z.open(file_name, "r")
+                file = self.zip_list[f].open(file_name, "r")
 
                 sys.stderr.write(
                     "\rParsing file [%s/%s] in %s"
-                    % (count, len(z.namelist()), f)
+                    % (count, len(self.zip_list[f].namelist()), f)
                 )
                 sys.stderr.flush()
                 # Get first element from each line (this is the symbol)
