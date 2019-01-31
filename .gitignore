@@ -6,3 +6,4 @@
 *.txt
 *.out
 venv/
+*.json
