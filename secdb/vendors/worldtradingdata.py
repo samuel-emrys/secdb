@@ -9,20 +9,20 @@ from utils.webio import WebIO
 from vendors.vendor import Vendor
 from lxml import html
 from exchange import Exchange
-from currency import Currency
 from symbol import Symbol
 from price import Price
 
 
-class VendorWorldTradingData(Vendor):
+class WorldTradingData(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorWorldTradingData, self).__init__(
+        super(WorldTradingData, self).__init__(
             name, website_url, support_email, api
         )
         self.stock_url = "https://www.worldtradingdata.com/download/list"
         self.login_url = "https://www.worldtradingdata.com/login"
         self.historical_url = "https://www.worldtradingdata.com/api/v1/history"
-        self.single_day_url = "https://www.worldtradingdata.com/api/v1/history_multi_single_day"
+        self.single_day_url = "https://www.worldtradingdata.com/api/v1/history\
+        _multi_single_day"
         self.symbols = []
         self.exchanges = []
         key = self.api_key.strip().split()

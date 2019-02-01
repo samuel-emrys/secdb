@@ -14,10 +14,10 @@ from symbol import Symbol
 from price import Price
 
 
-class VendorASX(Vendor):
+class ASX(Vendor):
     def __init__(self, name, website_url, support_email, api):
 
-        super(VendorASX, self).__init__(
+        super(ASX, self).__init__(
             name, website_url, support_email, api
         )
         self.company_url = "https://www.asx.com.au/asx/research/"
@@ -75,7 +75,7 @@ class VendorASX(Vendor):
 
                         if price_date is not None:
                             price = Price(
-                                vendor=VendorASX,
+                                vendor=ASX,
                                 price_date=price_date,
                                 symbol=ticker,
                                 created_date=now,

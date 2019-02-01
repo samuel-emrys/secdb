@@ -1,9 +1,9 @@
 from vendors.vendor import Vendor
 
 
-class VendorBarchart(Vendor):
+class Barchart(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorBarchart, self).__init__(
+        super(Barchart, self).__init__(
             name, website_url, support_email, api
         )
         # Build methods

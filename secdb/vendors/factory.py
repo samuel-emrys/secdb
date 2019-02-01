@@ -1,30 +1,30 @@
 import logging
 from datetime import datetime
-from vendors.asx import VendorASX
-from vendors.asxh import VendorASXHistorical
-from vendors.currencyiso import VendorCurrencyISO
-from vendors.marketindex import VendorMarketIndex
-from vendors.worldtradingdata import VendorWorldTradingData
-from vendors.alphavantage import VendorAlphaVantage
-from vendors.barchart import VendorBarchart
-from vendors.iex import VendorIEX
-from vendors.stooq import VendorStooq
-from vendors.qandl import VendorQandl
+from vendors.asx import ASX
+from vendors.asxh import ASXHistorical
+from vendors.currencyiso import CurrencyISO
+from vendors.marketindex import MarketIndex
+from vendors.worldtradingdata import WorldTradingData
+from vendors.alphavantage import AlphaVantage
+from vendors.barchart import Barchart
+from vendors.iex import IEX
+from vendors.stooq import Stooq
+from vendors.quandl import Quandl
 
 
 class VendorFactory:
     def __init__(self):
         self.factory = {
-            "asx": VendorASX,
-            "alphavantage": VendorAlphaVantage,
-            "qandl": VendorQandl,
-            "worldtradingdata": VendorWorldTradingData,
-            "barchart": VendorBarchart,
-            "stooq": VendorStooq,
-            "iex": VendorIEX,
-            "asxhistoricaldata": VendorASXHistorical,
-            "marketindex": VendorMarketIndex,
-            "currencyiso": VendorCurrencyISO,
+            "asx": ASX,
+            "alphavantage": AlphaVantage,
+            "quandl": Quandl,
+            "worldtradingdata": WorldTradingData,
+            "barchart": Barchart,
+            "stooq": Stooq,
+            "iex": IEX,
+            "asxhistoricaldata": ASXHistorical,
+            "marketindex": MarketIndex,
+            "currencyiso": CurrencyISO,
         }
 
     def __call__(self, vendor_name, config):

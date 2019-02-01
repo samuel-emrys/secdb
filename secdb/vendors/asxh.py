@@ -10,7 +10,7 @@ from symbol import Symbol
 from price import Price
 
 
-class VendorASXHistorical(Vendor):
+class ASXHistorical(Vendor):
 
     # @TODO:
     #     Pull Historical ASX Symbols
@@ -18,7 +18,7 @@ class VendorASXHistorical(Vendor):
     #     links with symbols that changed names
 
     def __init__(self, name, website_url, support_email, api):
-        super(VendorASXHistorical, self).__init__(
+        super(ASXHistorical, self).__init__(
             name, website_url, support_email, api
         )
         self.archive_url = "https://www.asxhistoricaldata.com/archive/"
@@ -65,7 +65,7 @@ class VendorASXHistorical(Vendor):
                     if date is not None:
                         price = Price(
                             price_date=date,
-                            vendor=VendorASXHistorical,
+                            vendor=ASXHistorical,
                             symbol=ticker,
                             open_price=open_price,
                             high_price=high_price,

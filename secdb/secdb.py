@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from aggregator import Aggregator
 from vendors.factory import VendorFactory
-from vendors.iex import VendorIEX
+from vendors.iex import IEX
 
 
 def build_database(vendors):
@@ -36,7 +36,7 @@ def build_database(vendors):
 
     for vendor in vendors:
         print(type(vendor))
-        if (type(vendor) == VendorIEX):
+        if (type(vendor) == IEX):
             prices.append(vendor.build_prices(agg.symbols))
 
     # agg.import_prices(prices)

@@ -1,9 +1,9 @@
 from vendors.vendor import Vendor
 
 
-class VendorAlphaVantage(Vendor):
+class AlphaVantage(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorAlphaVantage, self).__init__(
+        super(AlphaVantage, self).__init__(
             name, website_url, support_email, api
         )
         # Build methods

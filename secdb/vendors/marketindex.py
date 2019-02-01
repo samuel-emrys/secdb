@@ -8,9 +8,9 @@ from symbol import Symbol
 from price import Price
 
 
-class VendorMarketIndex(Vendor):
+class MarketIndex(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorMarketIndex, self).__init__(
+        super(MarketIndex, self).__init__(
             name, website_url, support_email, api
         )
         self.prices = {}

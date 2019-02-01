@@ -6,9 +6,9 @@ from datetime import datetime
 from price import Price
 
 
-class VendorIEX(Vendor):
+class IEX(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorIEX, self).__init__(
+        super(IEX, self).__init__(
             name, website_url, support_email, api
         )
         self.api_url = "https://api.iextrading.com/1.0/stock/SYMBOL/chart/5y"
@@ -65,7 +65,7 @@ class VendorIEX(Vendor):
 
                     if price_date is not None:
                         price = Price(
-                            vendor=VendorIEX,
+                            vendor=IEX,
                             price_date=price_date,
                             symbol=ticker,
                             created_date=now,
@@ -106,5 +106,5 @@ if __name__ == "__main__":
     with open(json_filename) as json_data_file:
         symbols = json.load(json_data_file)
 
-    vendor = VendorIEX("IEX", "iex.com", "test@test", "api")
+    vendor = IEX("IEX", "iex.com", "test@test", "api")
     vendor.build_prices(symbols)

@@ -5,9 +5,9 @@ import xml.etree.ElementTree as ET
 from currency import Currency
 
 
-class VendorCurrencyISO(Vendor):
+class CurrencyISO(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorCurrencyISO, self).__init__(
+        super(CurrencyISO, self).__init__(
             name, website_url, support_email, api
         )
         self.file = "list_one.xml"

@@ -1,9 +1,9 @@
 from vendors.vendor import Vendor
 
 
-class VendorQandl(Vendor):
+class Quandl(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorQandl, self).__init__(
+        super(Quandl, self).__init__(
             name, website_url, support_email, api
         )
 

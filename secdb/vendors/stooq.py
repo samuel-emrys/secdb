@@ -1,9 +1,9 @@
 from vendors.vendor import Vendor
 
 
-class VendorStooq(Vendor):
+class Stooq(Vendor):
     def __init__(self, name, website_url, support_email, api):
-        super(VendorStooq, self).__init__(
+        super(Stooq, self).__init__(
             name, website_url, support_email, api
         )
         # Build methods
