@@ -6,3 +6,4 @@
 *.out
 venv/
 *.json
+tests/test_application.py
