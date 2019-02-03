@@ -3,7 +3,6 @@
 *.log
 */__pycache__/
 *.pyc
-*.txt
 *.out
 venv/
 *.json
