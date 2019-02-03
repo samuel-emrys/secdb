@@ -1,9 +1,9 @@
-from vendors.vendor import Vendor
-from utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
+from secdb.utils.webio import WebIO
 import json
 import logging
 from datetime import datetime
-from price import Price
+from secdb.price import Price
 
 
 class IEX(Vendor):
@@ -76,7 +76,7 @@ class IEX(Vendor):
                             close_price=close_price,
                             volume=volume,
                         )
-                        print(price)
+                        # print(price)
 
                         # self.prices.append(price)
 

@@ -3,11 +3,11 @@ import sys
 import io
 
 from datetime import datetime
-from utils.webio import WebIO
-from vendors.vendor import Vendor
+from secdb.utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
 from lxml import html
-from symbol import Symbol
-from price import Price
+from secdb.symbol import Symbol
+from secdb.price import Price
 
 
 class ASXHistorical(Vendor):

@@ -6,12 +6,12 @@ from lxml import html
 from datetime import datetime
 from datetime import time
 
-from utils.webio import WebIO
-from vendors.vendor import Vendor
-import utils.helpers as helpers
+from secdb.utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
+import secdb.utils.helpers as helpers
 
-from symbol import Symbol
-from price import Price
+from secdb.symbol import Symbol
+from secdb.price import Price
 
 
 class ASX(Vendor):

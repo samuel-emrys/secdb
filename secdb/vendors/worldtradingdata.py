@@ -3,14 +3,14 @@ import csv
 import re
 import requests
 import json
-import utils.helpers as helpers
+import secdb.utils.helpers as helpers
 from datetime import datetime
-from utils.webio import WebIO
-from vendors.vendor import Vendor
+from secdb.utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
 from lxml import html
-from exchange import Exchange
-from symbol import Symbol
-from price import Price
+from secdb.exchange import Exchange
+from secdb.symbol import Symbol
+from secdb.price import Price
 
 
 class WorldTradingData(Vendor):
@@ -25,9 +25,9 @@ class WorldTradingData(Vendor):
         _multi_single_day"
         self.symbols = []
         self.exchanges = []
-        key = self.api_key.strip().split()
-        self.historical_key = key[0]
-        self.single_day_key = key[1]
+        # key = self.api_key.strip().split()
+        # self.historical_key = key[0]
+        # self.single_day_key = key[1]
 
     def build_prices(self, symbols):
         # Since this is rate limited, just do as part of update function
@@ -197,11 +197,11 @@ class WorldTradingData(Vendor):
         symbols = []
         for symbol in symbols:
             query_list = [
-                self.historical_url,
+                self.api['historical']['url'],
                 "?symbol=",
                 symbol,
                 "&sort=newest&api_token=",
-                self.historical_key
+                self.api['historical']['key']
             ]
 
             api_query = "".join(query_list)

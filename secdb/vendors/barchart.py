@@ -1,4 +1,4 @@
-from vendors.vendor import Vendor
+from secdb.vendors.vendor import Vendor
 
 
 class Barchart(Vendor):

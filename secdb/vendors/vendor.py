@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from datetime import datetime
 from datetime import timedelta
-import utils.helpers as helpers
+import secdb.utils.helpers as helpers
 import re
 
 
@@ -24,6 +24,9 @@ class Vendor:
             str(self.support_email),
         ]
         return ",".join(out)
+
+    def __eq__(self, other):
+        return (self.name == other.name)
 
     # Symbol Helper methods
     def parse_vendor(element):

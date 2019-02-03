@@ -1,11 +1,11 @@
 from datetime import datetime
 from lxml import html
-from utils.webio import WebIO
-from vendors.vendor import Vendor
-from exchange import Exchange
-from currency import Currency
-from symbol import Symbol
-from price import Price
+from secdb.utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
+from secdb.exchange import Exchange
+from secdb.currency import Currency
+from secdb.symbol import Symbol
+from secdb.price import Price
 
 
 class MarketIndex(Vendor):

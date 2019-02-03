@@ -1,8 +1,8 @@
-from utils.webio import WebIO
-from vendors.vendor import Vendor
+from secdb.utils.webio import WebIO
+from secdb.vendors.vendor import Vendor
 import xml.etree.ElementTree as ET
 
-from currency import Currency
+from secdb.currency import Currency
 
 
 class CurrencyISO(Vendor):

@@ -1,15 +1,15 @@
 import logging
 from datetime import datetime
-from vendors.asx import ASX
-from vendors.asxh import ASXHistorical
-from vendors.currencyiso import CurrencyISO
-from vendors.marketindex import MarketIndex
-from vendors.worldtradingdata import WorldTradingData
-from vendors.alphavantage import AlphaVantage
-from vendors.barchart import Barchart
-from vendors.iex import IEX
-from vendors.stooq import Stooq
-from vendors.quandl import Quandl
+from secdb.vendors.asx import ASX
+from secdb.vendors.asxh import ASXHistorical
+from secdb.vendors.currencyiso import CurrencyISO
+from secdb.vendors.marketindex import MarketIndex
+from secdb.vendors.worldtradingdata import WorldTradingData
+from secdb.vendors.alphavantage import AlphaVantage
+from secdb.vendors.barchart import Barchart
+from secdb.vendors.iex import IEX
+from secdb.vendors.stooq import Stooq
+from secdb.vendors.quandl import Quandl
 
 
 class VendorFactory:

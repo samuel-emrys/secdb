@@ -14,3 +14,8 @@ class Currency:
             self.minor_unit,
         ]
         return ",".join(out)
+
+    def __eq__(self, other):
+        if isinstance(other, Currency):
+            return (self.abbrev == other.abbrev) and (self.num == other.num)
+        return False

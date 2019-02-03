@@ -1,6 +1,6 @@
-from exchange import Exchange
-from currency import Currency
-from symbol import Symbol
+from secdb.exchange import Exchange
+from secdb.currency import Currency
+from secdb.symbol import Symbol
 
 
 class Aggregator:
