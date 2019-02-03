@@ -1,0 +1,6 @@
+clint
+lxml
+psycopg2
+requests
+SQLAlchemy
+
