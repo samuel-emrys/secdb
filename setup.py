@@ -23,7 +23,7 @@ def read(*names, **kwargs):
 
 
 setup(
-    name='SecDB',
+    name='secdb',
     version='0.1.0',
     license='GPLv3',
     description='Securities Database Maintenance Tool',
@@ -67,6 +67,11 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
+        'clint',
+        'lxml',
+        'psycopg2',
+        'requests',
+        'SQLAlchemy',
         # 'click',
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
