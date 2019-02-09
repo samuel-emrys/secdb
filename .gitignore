@@ -126,4 +126,4 @@ dmypy.json
 
 # Test files with sensitive info
 tests/test_application.py
-*.json
+data/
