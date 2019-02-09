@@ -72,7 +72,7 @@ def import_vendors():
 
 def main():
 
-    log_location="log/secdb.log"
+    log_location = "log/secdb.log"
     logging.basicConfig(filename=log_location, level=logging.DEBUG)
     now = datetime.utcnow()
 

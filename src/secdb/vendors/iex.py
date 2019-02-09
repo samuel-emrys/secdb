@@ -40,7 +40,12 @@ class IEX(Vendor):
             symbol = symbols[symbol_key]
 
             try:
-                query = self.api['url'] + "/stock/" + symbol.ticker + "/chart/5y"
+                query = (
+                    self.api['url']
+                    + "/stock/"
+                    + symbol.ticker
+                    + "/chart/5y"
+                )
             except KeyError:
                 logging.debug("IEX API url not provided")
 
