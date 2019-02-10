@@ -7,8 +7,8 @@ from datetime import datetime
 
 def connect():
     db_host = "localhost"
-    db_user = "secdb_admin"
-    db_pass = "Default123!"
+    db_user = "postgres"
+    db_pass = ""
     db_name = "securities_master"
 
     now = datetime.utcnow()
