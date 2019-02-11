@@ -1,6 +1,6 @@
 from secdb.currency import Currency
 from sqlalchemy import create_engine
-from secdb.currency import Base
+from secdb.database import Base
 from sqlalchemy.orm import sessionmaker
 
 
