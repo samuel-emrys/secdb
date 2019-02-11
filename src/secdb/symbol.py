@@ -1,4 +1,7 @@
-class Symbol:
+from secdb.database import Base
+
+
+class Symbol(Base):
     def __init__(
         self,
         exchange_code,

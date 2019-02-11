@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from datetime import datetime
 from datetime import timedelta
-from sqlalchemy.ext.declarative import declarative_base
+from secdb.database import Base
 import secdb.utils.helpers as helpers
 import re
 
 
-class Vendor(declarative_base()):
+class Vendor(Base):
     # Abstract vendor class, individual vendors inherit from this
 
     # Constructor

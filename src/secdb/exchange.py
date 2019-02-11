@@ -1,4 +1,7 @@
-class Exchange:
+from secdb.database import Base
+
+
+class Exchange(Base):
     def __init__(
         self,
         abbrev,

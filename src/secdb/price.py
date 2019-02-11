@@ -1,4 +1,7 @@
-class Price:
+from secdb.database import Base
+
+
+class Price(Base):
     def __init__(
         self,
         vendor,
