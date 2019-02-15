@@ -31,8 +31,8 @@ class Exchange(Base):
     country = Column(String)
     timezone = Column(String)
     timezone_offset = Column(TIME)
-    open_time = Column(TIME)
-    close_time = Column(TIME)
+    open_utc = Column(TIME)
+    close_utc = Column(TIME)
     created_date = Column(TIMESTAMP)
     last_updated_date = Column(TIMESTAMP)
 
