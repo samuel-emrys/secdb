@@ -2,6 +2,7 @@ import configparser
 import requests
 import re
 import sys
+import os
 
 from lxml import html
 from clint.textui import progress
@@ -18,7 +19,8 @@ class WebIO:
         token_value = tree.xpath('//input[@name="_token"]/@value')
         token = str(token_value[0])
         # Form credentials
-        cred_filename = "credentials.conf"
+        parent_path = os.path.abspath(os.path.dirname(__file__))
+        cred_filename = os.path.join(parent_path, "../credentials.conf")
 
         # Load Configuration File
         credentials = configparser.RawConfigParser()
