@@ -4,6 +4,7 @@
 import logging
 import argparse
 import json
+import os.path
 
 from datetime import datetime
 from secdb.aggregator import Aggregator
@@ -28,16 +29,19 @@ def build_database(vendors):
         exchanges.append(vendor.build_exchanges())
     agg.import_exchanges(exchanges)
 
-    for vendor in vendors:
-        symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
-    agg.import_symbols(symbols)
+    for exchange in agg.exchanges:
+        print(exchange)
+
+    # for vendor in vendors:
+    #     symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
+    # agg.import_symbols(symbols)
 
     # print(agg.symbols)
 
-    for vendor in vendors:
-        print(type(vendor))
-        if (type(vendor) == IEX):
-            prices.append(vendor.build_prices(agg.symbols))
+    # for vendor in vendors:
+    #     print(type(vendor))
+    #     if (type(vendor) == IEX):
+    #         prices.append(vendor.build_prices(agg.symbols))
 
     # agg.import_prices(prices)
 
@@ -54,7 +58,9 @@ def update_database(vendors):
 
 def import_vendors():
     vendors = []
-    config_filename = "secdb/vendors.conf"
+
+    parent_path = os.path.abspath(os.path.dirname(__file__))
+    config_filename = os.path.join(parent_path, "vendors.conf")
 
     # Load Configuration File
     with open(config_filename) as json_data_file:
@@ -72,7 +78,9 @@ def import_vendors():
 
 def main():
 
-    log_location = "log/secdb.log"
+    parent_path = os.path.abspath(os.path.dirname(__file__))
+    log_location = os.path.join(parent_path, "../../log/secdb.log")
+
     logging.basicConfig(filename=log_location, level=logging.DEBUG)
     now = datetime.utcnow()
 

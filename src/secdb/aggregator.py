@@ -23,7 +23,7 @@ class Aggregator:
         if len(currencies) == 1:
             for source in currencies:
                 for currency in source:
-                    self.currencies[currency.abbrev] = currency
+                    self.currencies[currency.code] = currency
         else:
             # Currency-ISO is not the only vendor, handle this appropriately
             pass

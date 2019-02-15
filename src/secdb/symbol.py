@@ -1,7 +1,49 @@
 from secdb.database import Base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.dialects.postgresql import TIMESTAMP
+'''
+CREATE TABLE SYMBOL(
+    id                      SERIAL                                              ,
+    prev_id                 INTEGER             NULL                            ,
+    exchange_code           VARCHAR(32)     NOT NULL                            ,
+    ticker                  VARCHAR(32)     NOT NULL                            ,
+    instrument              VARCHAR(64)         NULL                            ,
+    name                    VARCHAR(255)        NULL                            ,
+    sector                  VARCHAR(255)        NULL                            ,
+    currency                VARCHAR(32)         NULL                            ,
+    mer                     DECIMAL(13,10)      NULL                            ,
+    benchmark               VARCHAR(255)        NULL                            ,
+    listing_date            TIMESTAMP           NULL                            ,
+    created_date            TIMESTAMP       NOT NULL                            ,
+    last_updated_date       TIMESTAMP       NOT NULL                            ,
+    UNIQUE                  (ticker, exchange_code)                             ,
+    PRIMARY KEY             (id)                                                ,
+    FOREIGN KEY             (exchange_code) REFERENCES      EXCHANGE(abbrev)    ,
+    FOREIGN KEY             (prev_id)       REFERENCES      SYMBOL(id)          ,
+    FOREIGN KEY             (currency)      REFERENCES      CURRENCY(code)
+);
+
+'''
 
 
 class Symbol(Base):
+    __tablename__ = 'symbol'
+
+    id = Column(Integer, primary_key=True)
+    prev_id = Column(Integer, ForeignKey('symbol.id'))
+    exchange_code = Column(String, ForeignKey('exchange.abbrev'))
+    ticker = Column(String)
+    instrument = Column(String)
+    name = Column(String)
+    sector = Column(String)
+    currency = Column(String, ForeignKey('currency.code'))
+    mer = Column(String)
+    benchmark = Column(String)
+    listing_date = Column(TIMESTAMP)
+    created_date = Column(TIMESTAMP)
+    last_updated_date = Column(TIMESTAMP)
+
     def __init__(
         self,
         exchange_code,

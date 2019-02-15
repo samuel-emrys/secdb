@@ -2,11 +2,37 @@ from abc import abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from secdb.database import Base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.dialects.postgresql import TIMESTAMP
+
 import secdb.utils.helpers as helpers
 import re
 
+'''
+CREATE TABLE DATA_VENDOR(
+    id                      SERIAL                  ,
+    name                    VARCHAR(64)     NOT NULL,
+    website_url             VARCHAR(255)        NULL,
+    support_email           VARCHAR(255)        NULL,
+    api_url                 VARCHAR(255)        NULL,
+    api_key                 VARCHAR(255)        NULL,
+    created_date            TIMESTAMP       NOT NULL,
+    last_updated_date       TIMESTAMP       NOT NULL,
+    PRIMARY KEY             (id)
+);
+'''
+
 
 class Vendor(Base):
+    __tablename__ = 'data_vendor'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    website_url = Column(String)
+    support_email = Column(String)
+    created_date = Column(TIMESTAMP)
+    last_updated_date = Column(TIMESTAMP)
+
     # Abstract vendor class, individual vendors inherit from this
 
     # Constructor
