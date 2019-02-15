@@ -30,7 +30,7 @@ def build_database(vendors):
     agg.import_exchanges(exchanges)
 
     for exchange in agg.exchanges:
-        print(exchange)
+        print(agg.exchanges[exchange])
 
     # for vendor in vendors:
     #     symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
