@@ -69,7 +69,7 @@ setup(
     install_requires=[
         'clint',
         'lxml',
-        'psycopg2',
+        'psycopg2-binary',
         'requests',
         'SQLAlchemy',
         # 'click',
