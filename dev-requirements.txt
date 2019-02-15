@@ -52,9 +52,9 @@ filelock==3.0.10 \
     --hash=sha256:b8d5ca5ca1c815e1574aee746650ea7301de63d87935b3463d26368b76e31633 \
     --hash=sha256:d610c1bb404daf85976d7a82eb2ada120f04671007266b708606565dd03b5be6 \
     # via tox
-flake8==3.7.4 \
-    --hash=sha256:09b9bb539920776da542e67a570a5df96ff933c9a08b62cfae920bcc789e4383 \
-    --hash=sha256:e0f8cd519cfc0072c0ee31add5def09d2b3ef6040b34dc426445c3af9b02163c
+flake8==3.7.5 \
+    --hash=sha256:c3ba1e130c813191db95c431a18cb4d20a468e98af7a77e2181b68574481ad36 \
+    --hash=sha256:fd9ddf503110bf3d8b1d270e8c673aab29ccb3dd6abf29bae1f54e5116ab4a91
 idna==2.8 \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c \
@@ -174,7 +174,7 @@ urllib3==1.24.1 \
     --hash=sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39 \
     --hash=sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22 \
     # via requests
-virtualenv==16.3.0 \
-    --hash=sha256:58c359370401e0af817fb0070911e599c5fdc836166306b04fd0f278151ed125 \
-    --hash=sha256:729f0bcab430e4ef137646805b5b1d8efbb43fe53d4a0f33328624a84a5121f7 \
+virtualenv==16.4.0 \
+    --hash=sha256:8b9abfc51c38b70f61634bf265e5beacf6fae11fc25d355d1871f49b8e45f0db \
+    --hash=sha256:cceab52aa7d4df1e1871a70236eb2b89fcfe29b6b43510d9738689787c513261 \
     # via tox
