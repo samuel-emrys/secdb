@@ -1,22 +1,23 @@
 from secdb.database import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import TIME, TIMESTAMP
+from datetime import datetime
 
 
 '''
 CREATE TABLE EXCHANGE(
-    abbrev                  VARCHAR(32)     NOT NULL UNIQUE                     ,
-    suffix                  VARCHAR(32)         NULL                            ,
-    name                    VARCHAR(255)    NOT NULL                            ,
-    city                    VARCHAR(255)        NULL                            ,
-    country                 VARCHAR(255)        NULL                            ,
-    timezone                VARCHAR(64)         NULL                            ,
-    timezone_offset         TIME                NULL                            ,
-    open_time               TIME                NULL                            ,
-    close_time              TIME                NULL                            ,
-    created_date            TIMESTAMP       NOT NULL                            ,
-    last_updated_date       TIMESTAMP       NOT NULL                            ,
-    PRIMARY KEY             (abbrev)                                            
+    abbrev                  VARCHAR(32)     NOT NULL UNIQUE                   ,
+    suffix                  VARCHAR(32)         NULL                          ,
+    name                    VARCHAR(255)    NOT NULL                          ,
+    city                    VARCHAR(255)        NULL                          ,
+    country                 VARCHAR(255)        NULL                          ,
+    timezone                VARCHAR(64)         NULL                          ,
+    timezone_offset         TIME                NULL                          ,
+    open_time               TIME                NULL                          ,
+    close_time              TIME                NULL                          ,
+    created_date            TIMESTAMP       NOT NULL                          ,
+    last_updated_date       TIMESTAMP       NOT NULL                          ,
+    PRIMARY KEY             (abbrev)
 );
 '''
 
@@ -47,6 +48,8 @@ class Exchange(Base):
         timezone_offset=None,
         open_utc=None,
         close_utc=None,
+        created_date=datetime.utcnow(),
+        last_updated_date=datetime.utcnow()
     ):
         self.abbrev = abbrev
         self.suffix = suffix
@@ -57,6 +60,8 @@ class Exchange(Base):
         self.timezone_offset = timezone_offset
         self.open_utc = open_utc
         self.close_utc = close_utc
+        self.created_date = created_date
+        self.last_updated_date = last_updated_date
 
     def __str__(self):
 

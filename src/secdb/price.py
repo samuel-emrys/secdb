@@ -5,24 +5,25 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 '''
 CREATE TABLE DAILY_PRICE(
-    id                      SERIAL                                              ,
-    data_vendor_id          INTEGER         NOT NULL                            ,
-    symbol_id               INTEGER         NOT NULL                            ,
-    price_date              TIMESTAMP       NOT NULL                            ,
-    created_date            TIMESTAMP       NOT NULL                            ,
-    last_updated_date       TIMESTAMP       NOT NULL                            ,
-    open_price              DECIMAL(19,4)       NULL                            ,
-    high_price              DECIMAL(19,4)       NULL                            ,
-    low_price               DECIMAL(19,4)       NULL                            ,
-    close_price             DECIMAL(19,4)       NULL                            ,
-    adj_close_price         DECIMAL(19,4)       NULL                            ,
-    volume                  BIGINT              NULL                            ,
-    PRIMARY KEY             (id)                                                ,
-    FOREIGN KEY             (data_vendor_id)    REFERENCES DATA_VENDOR(id)      ,
-    FOREIGN KEY             (symbol_id)         REFERENCES SYMBOL(id)           
+    id                      SERIAL                                            ,
+    data_vendor_id          INTEGER         NOT NULL                          ,
+    symbol_id               INTEGER         NOT NULL                          ,
+    price_date              TIMESTAMP       NOT NULL                          ,
+    created_date            TIMESTAMP       NOT NULL                          ,
+    last_updated_date       TIMESTAMP       NOT NULL                          ,
+    open_price              DECIMAL(19,4)       NULL                          ,
+    high_price              DECIMAL(19,4)       NULL                          ,
+    low_price               DECIMAL(19,4)       NULL                          ,
+    close_price             DECIMAL(19,4)       NULL                          ,
+    adj_close_price         DECIMAL(19,4)       NULL                          ,
+    volume                  BIGINT              NULL                          ,
+    PRIMARY KEY             (id)                                              ,
+    FOREIGN KEY             (data_vendor_id)    REFERENCES DATA_VENDOR(id)    ,
+    FOREIGN KEY             (symbol_id)         REFERENCES SYMBOL(id)
 );
-
 '''
+
+
 class Price(Base):
     __tablename__ = 'daily_price'
 
@@ -30,20 +31,19 @@ class Price(Base):
     data_vendor_id = Column(Integer, ForeignKey('data_vendor.id'))
     symbol_id = Column(Integer, ForeignKey('symbol.id'))
     price_date = Column(TIMESTAMP)
-    created_date = Column(TIMESTAMP)
-    last_updated_date = Column(TIMESTAMP)
     open_price = Column(DECIMAL(19, 4))
     high_price = Column(DECIMAL(19, 4))
     low_price = Column(DECIMAL(19, 4))
     close_price = Column(DECIMAL(19, 4))
     adj_close_price = Column(DECIMAL(19, 4))
     volume = Column(BigInteger)
-
+    created_date = Column(TIMESTAMP)
+    last_updated_date = Column(TIMESTAMP)
 
     def __init__(
         self,
-        vendor,
-        symbol,
+        data_vendor_id,
+        symbol_id,
         price_date,
         created_date,
         last_updated_date,
@@ -55,8 +55,8 @@ class Price(Base):
         volume=None,
     ):
 
-        self.vendor = vendor
-        self.symbol = symbol
+        self.data_vendor_id = data_vendor_id
+        self.symbol_id = symbol_id
         self.price_date = price_date
         self.created_date = created_date
         self.last_updated_date = last_updated_date
@@ -69,8 +69,8 @@ class Price(Base):
 
     def __str__(self):
         out = [
-            str(self.vendor),
-            str(self.symbol),
+            str(self.data_vendor_id),
+            str(self.symbol_id),
             str(self.price_date),
             str(self.created_date),
             str(self.last_updated_date),

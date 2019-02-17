@@ -36,19 +36,27 @@ class Vendor(Base):
     # Abstract vendor class, individual vendors inherit from this
 
     # Constructor
-    def __init__(self, name, website_url, support_email, api):
+    def __init__(
+        self, name, website_url, support_email, api,
+        created_date=datetime.utcnow(), last_updated_date=datetime.utcnow()
+    ):
         self.name = name
         self.website_url = website_url
         self.support_email = support_email
         self.api = api
+        self.created_date = created_date
+        self.last_updated_date = last_updated_date
 
     # String cast overload
     def __str__(self):
 
         out = [
+            str(self.id),
             str(self.name),
             str(self.website_url),
             str(self.support_email),
+            str(self.created_date),
+            str(self.last_updated_date)
         ]
         return ",".join(out)
 

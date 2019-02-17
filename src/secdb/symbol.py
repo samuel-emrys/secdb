@@ -50,6 +50,7 @@ class Symbol(Base):
         ticker,
         created_date,
         last_updated_date,
+        prev_id=None,
         instrument=None,
         name=None,
         sector=None,
@@ -70,19 +71,22 @@ class Symbol(Base):
         self.listing_date = listing_date
         self.created_date = created_date
         self.last_updated_date = last_updated_date
+        self.prev_id = prev_id
 
     def __str__(self):
         out = [
-            self.exchange_code,
-            self.ticker,
-            self.instrument,
-            self.name,
-            self.sector,
-            self.currency,
-            self.mer,
-            self.benchmark,
-            self.listing_date,
-            self.created_date,
-            self.last_updated_date,
+            str(self.id),
+            str(self.prev_id),
+            str(self.exchange_code),
+            str(self.ticker),
+            str(self.instrument),
+            str(self.name),
+            str(self.sector),
+            str(self.currency),
+            str(self.mer),
+            str(self.benchmark),
+            str(self.listing_date),
+            str(self.created_date),
+            str(self.last_updated_date),
         ]
         return ",".join(out)
