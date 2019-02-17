@@ -1,4 +1,9 @@
 from secdb.exchange import Exchange
+from secdb.currency import Currency
+from secdb.price import Price
+from secdb.symbol import Symbol
+from secdb.vendors.vendor import Vendor
+
 from sqlalchemy import create_engine
 from secdb.database import Base
 from sqlalchemy.orm import sessionmaker

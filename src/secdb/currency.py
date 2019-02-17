@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from secdb.database import Base
+from sqlalchemy.orm import relationship
+# from secdb.symbol import Symbol
 
 
 class Currency(Base):
@@ -10,11 +12,15 @@ class Currency(Base):
     name = Column(String)
     minor_unit = Column(Integer)
 
-    def __init__(self, code, num=None, name=None, minor_unit=None):
-        self.code = code
-        self.num = num
-        self.name = name
-        self.minor_unit = minor_unit
+    # Relationship management
+    # Currency has many symbols
+    symbols = relationship('Symbol', backref='currency')
+
+    # def __init__(self, code, num=None, name=None, minor_unit=None):
+    #     self.code = code
+    #     self.num = num
+    #     self.name = name
+    #     self.minor_unit = minor_unit
 
     def __str__(self):
 

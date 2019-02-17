@@ -4,6 +4,7 @@ from datetime import timedelta
 from secdb.database import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy.orm import relationship
 
 import secdb.utils.helpers as helpers
 import re
@@ -32,6 +33,10 @@ class Vendor(Base):
     support_email = Column(String)
     created_date = Column(TIMESTAMP)
     last_updated_date = Column(TIMESTAMP)
+
+    # Relationship management
+    # Data vendor has many prices
+    prices_daily = relationship('Price', backref='vendor')
 
     # Abstract vendor class, individual vendors inherit from this
 

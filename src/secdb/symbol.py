@@ -2,6 +2,7 @@ from secdb.database import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy.orm import relationship
 '''
 CREATE TABLE SYMBOL(
     id                      SERIAL                                              ,
@@ -32,46 +33,52 @@ class Symbol(Base):
 
     id = Column(Integer, primary_key=True)
     prev_id = Column(Integer, ForeignKey('symbol.id'))
-    exchange_code = Column(String, ForeignKey('exchange.abbrev'))
-    ticker = Column(String)
+    exchange_code = Column(String, ForeignKey('exchange.abbrev'), nullable=False)
+    ticker = Column(String, nullable=False)
     instrument = Column(String)
     name = Column(String)
     sector = Column(String)
-    currency = Column(String, ForeignKey('currency.code'))
+    currency_code = Column(String, ForeignKey('currency.code'))
     mer = Column(String)
     benchmark = Column(String)
     listing_date = Column(TIMESTAMP)
-    created_date = Column(TIMESTAMP)
-    last_updated_date = Column(TIMESTAMP)
+    created_date = Column(TIMESTAMP, nullable=False)
+    last_updated_date = Column(TIMESTAMP, nullable=False)
 
-    def __init__(
-        self,
-        exchange_code,
-        ticker,
-        created_date,
-        last_updated_date,
-        prev_id=None,
-        instrument=None,
-        name=None,
-        sector=None,
-        currency=None,
-        mer=None,
-        benchmark=None,
-        listing_date=None,
-    ):
+    # UniqueConstraint('customer_id', 'location_code', name='uix_1')
 
-        self.exchange_code = exchange_code
-        self.ticker = ticker
-        self.instrument = instrument
-        self.name = name
-        self.sector = sector
-        self.currency = currency
-        self.mer = mer
-        self.benchmark = benchmark
-        self.listing_date = listing_date
-        self.created_date = created_date
-        self.last_updated_date = last_updated_date
-        self.prev_id = prev_id
+    # Relationship management
+    # Symbol has many prices
+    prices_daily = relationship('Price', backref='symbol')
+
+    # def __init__(
+    #     self,
+    #     exchange_code,
+    #     ticker,
+    #     created_date,
+    #     last_updated_date,
+    #     prev_id=None,
+    #     instrument=None,
+    #     name=None,
+    #     sector=None,
+    #     currency_code=None,
+    #     mer=None,
+    #     benchmark=None,
+    #     listing_date=None,
+    # ):
+
+    #     self.exchange_code = exchange_code
+    #     self.ticker = ticker
+    #     self.instrument = instrument
+    #     self.name = name
+    #     self.sector = sector
+    #     self.currency_code = currency_code
+    #     self.mer = mer
+    #     self.benchmark = benchmark
+    #     self.listing_date = listing_date
+    #     self.created_date = created_date
+    #     self.last_updated_date = last_updated_date
+    #     self.prev_id = prev_id
 
     def __str__(self):
         out = [

@@ -1,12 +1,13 @@
-from secdb.symbol import Symbol
-from secdb.currency import Currency
 from secdb.exchange import Exchange
+from secdb.currency import Currency
+from secdb.price import Price
+from secdb.symbol import Symbol
+from secdb.vendors.vendor import Vendor
 from sqlalchemy import create_engine
 from secdb.database import Base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from secdb.application import import_vendors
-from secdb.price import Price
 
 
 '''
@@ -70,7 +71,8 @@ vts = Symbol(
         instrument='ETF',
         name='Vanguard Total US Stock Market Index ETF',
         sector=None,
-        currency='AUD',
+        currency_code='AUD',
+        # currency=aud,
         mer='0.05%',
         benchmark='MSCI Total US Stock Market Index',
         listing_date=datetime.strptime("2009-12-01", "%Y-%m-%d"),
@@ -131,11 +133,16 @@ def test_update_price():
 
 def test_delete_price():
     # Delete
-    # session.delete(vts)
-    # session.commit()
-    # session.delete(asx)
-    # session.commit()
-    # session.delete(aud)
-    # session.commit()
-    # print("Table contents deleted")
-    pass
+    session.delete(vts)
+    session.commit()
+    session.delete(asx)
+    session.commit()
+    session.delete(aud)
+    session.commit()
+    for vendor in vendors:
+        session.delete(vendor)
+        session.commit()
+    session.delete(vts_price)
+    session.commit()
+    print("Table contents deleted")
+    # pass

@@ -1,6 +1,8 @@
-from secdb.symbol import Symbol
-from secdb.currency import Currency
 from secdb.exchange import Exchange
+from secdb.currency import Currency
+from secdb.price import Price
+from secdb.symbol import Symbol
+from secdb.vendors.vendor import Vendor
 from sqlalchemy import create_engine
 from secdb.database import Base
 from sqlalchemy.orm import sessionmaker
@@ -66,7 +68,8 @@ vts = Symbol(
         instrument='ETF',
         name='Vanguard Total US Stock Market Index ETF',
         sector=None,
-        currency='AUD',
+        currency_code='AUD',
+        # currency=aud,
         mer='0.05%',
         benchmark='MSCI Total US Stock Market Index',
         listing_date=datetime.strptime("2009-12-01", "%Y-%m-%d"),
