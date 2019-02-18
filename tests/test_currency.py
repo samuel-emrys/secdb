@@ -3,9 +3,9 @@ from secdb.symbol import Symbol
 from secdb.exchange import Exchange
 from secdb.price import Price
 from secdb.vendors.vendor import Vendor
-from sqlalchemy import create_engine
 from secdb.database import Base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 '''
     Initialisation variables
