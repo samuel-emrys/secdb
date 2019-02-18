@@ -5,7 +5,7 @@ import logging
 import argparse
 import json
 import os.path
-
+import secdb.database
 from datetime import datetime
 from secdb.aggregator import Aggregator
 from secdb.vendors.factory import VendorFactory
@@ -17,7 +17,10 @@ def build_database(vendors):
     exchanges = []
     symbols = []
     prices = []
-    agg = Aggregator()
+
+    session = secdb.database.connect()
+
+    agg = Aggregator(session)
 
     # Using 4 loops, one for each dataset to be built.
     # Ensures that each dataset is fully built before building the next.
