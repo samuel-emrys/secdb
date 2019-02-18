@@ -1,7 +1,3 @@
-from secdb.exchange import Exchange
-from secdb.currency import Currency
-from secdb.symbol import Symbol
-
 
 class Aggregator:
     """
@@ -10,11 +6,20 @@ class Aggregator:
     or duplicates, and it is as complete as possible
     """
 
-    def __init__(self):
-        self.currencies = {}
-        self.symbols = {}
-        self.exchanges = {}
-        self.prices = {}
+    def __init__(self, session):
+        self.session = session
+        self.currencies = []
+        self.symbols = []
+        self.exchanges = []
+        self.prices = []
+        self.vendors = []
+
+    def import_vendors(self, vendors):
+
+        self.vendors = vendors
+
+        self.session.bulk_save_objects(self.vendors)
+        self.session.commit()
 
     def import_currencies(self, currencies):
 
@@ -23,19 +28,32 @@ class Aggregator:
         if len(currencies) == 1:
             for source in currencies:
                 for currency in source:
-                    self.currencies[currency.code] = currency
+                    self.currencies.append(currency)
+                    # self.currencies[currency.code] = currency
         else:
             # Currency-ISO is not the only vendor, handle this appropriately
             pass
+
+        self.session.bulk_save_objects(self.currencies)
+        self.session.commit()
 
     def import_symbols(self, symbols):
         symbols = [x for x in symbols if x is not None]
 
         for source in symbols:
             for symbol in source:
-                key = (symbol.ticker, symbol.exchange_code)
-                if key not in self.symbols:
-                    self.symbols[key] = symbol
+                if (symbol not in self.symbols):
+                    self.symbols.append(symbol)
+
+        # Creates a dict of symbols
+        # for source in symbols:
+        #     for symbol in source:
+        #         key = (symbol.ticker, symbol.exchange_code)
+        #         if key not in self.symbols:
+        #             self.symbols[key] = symbol
+
+        self.session.bulk_save_objects(self.symbols)
+        self.session.commit()
 
     def import_exchanges(self, exchanges):
         """
@@ -56,8 +74,16 @@ class Aggregator:
 
         for source in exchanges:
             for exchange in source:
-                if exchange.abbrev not in self.exchanges:
-                    self.exchanges[exchange.abbrev] = exchange
+                if exchange not in self.exchanges:
+                    self.exchanges.append(exchange)
+
+        # for source in exchanges:
+        #     for exchange in source:
+        #         if exchange.abbrev not in self.exchanges:
+        #             self.exchanges[exchange.abbrev] = exchange
+
+        self.session.bulk_save_objects(self.exchanges)
+        self.session.commit()
 
     def import_prices(self, prices):
         pass
