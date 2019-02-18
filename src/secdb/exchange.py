@@ -42,32 +42,6 @@ class Exchange(Base):
     # Exchange has many symbols
     symbols = relationship('Symbol', backref='exchange')
 
-    # def __init__(
-    #     self,
-    #     abbrev,
-    #     suffix=None,
-    #     name=None,
-    #     city=None,
-    #     country=None,
-    #     timezone=None,
-    #     timezone_offset=None,
-    #     open_utc=None,
-    #     close_utc=None,
-    #     created_date=datetime.utcnow(),
-    #     last_updated_date=datetime.utcnow()
-    # ):
-    #     self.abbrev = abbrev
-    #     self.suffix = suffix
-    #     self.name = name
-    #     self.city = city
-    #     self.country = country
-    #     self.timezone = timezone
-    #     self.timezone_offset = timezone_offset
-    #     self.open_utc = open_utc
-    #     self.close_utc = close_utc
-    #     self.created_date = created_date
-    #     self.last_updated_date = last_updated_date
-
     def __str__(self):
 
         out = [
@@ -82,3 +56,8 @@ class Exchange(Base):
             str(self.close_utc)
         ]
         return ",".join(out)
+
+    def __eq__(self, other):
+        if isinstance(other, Exchange):
+            return (self.abbrev == other.abbrev)
+        return False

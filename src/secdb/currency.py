@@ -16,12 +16,6 @@ class Currency(Base):
     # Currency has many symbols
     symbols = relationship('Symbol', backref='currency')
 
-    # def __init__(self, code, num=None, name=None, minor_unit=None):
-    #     self.code = code
-    #     self.num = num
-    #     self.name = name
-    #     self.minor_unit = minor_unit
-
     def __str__(self):
 
         out = [
@@ -32,7 +26,8 @@ class Currency(Base):
         ]
         return ",".join(out)
 
+    # Overload equality operator for list comparisons
     def __eq__(self, other):
         if isinstance(other, Currency):
-            return (self.code == other.code) and (self.num == other.num)
+            return (self.code == other.code)
         return False

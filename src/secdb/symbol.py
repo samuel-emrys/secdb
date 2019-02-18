@@ -97,3 +97,11 @@ class Symbol(Base):
             str(self.last_updated_date),
         ]
         return ",".join(out)
+
+    def __eq__(self, other):
+        if isinstance(other, Symbol):
+            return (
+                (self.exchange_code == other.exchange_code)
+                and (self.ticker == other.ticker)
+                )
+        return False
