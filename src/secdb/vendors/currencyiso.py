@@ -47,7 +47,7 @@ class CurrencyISO(Vendor):
                 # Currency has a primary key, and isn't a duplicate entry
             if currencyAbbr is not None and currency_dict[currencyAbbr] == 1:
                 currency = Currency(
-                    currencyAbbr, currencyNum, currencyName, currencyMinorUnit
+                    code=currencyAbbr, num=currencyNum, name=currencyName, minor_unit=currencyMinorUnit
                 )
                 self.currencies.append(currency)
 
