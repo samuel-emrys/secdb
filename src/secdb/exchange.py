@@ -60,4 +60,6 @@ class Exchange(Base):
     def __eq__(self, other):
         if isinstance(other, Exchange):
             return (self.abbrev == other.abbrev)
+        elif isinstance(other, str):
+            return (self.abbrev == other)
         return False

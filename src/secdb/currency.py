@@ -30,4 +30,6 @@ class Currency(Base):
     def __eq__(self, other):
         if isinstance(other, Currency):
             return (self.code == other.code)
+        elif isinstance(other, str):
+            return (self.code == other)
         return False
