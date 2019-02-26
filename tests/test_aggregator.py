@@ -28,7 +28,14 @@ def test_exchange_add():
 
 
 def test_symbol_add():
-    pass
+    symbols = []
+    for vendor in agg.vendors:
+        symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
+    agg.import_symbols(symbols)
+
+    # for vendor in agg.vendors:
+
+    # pass
 
 
 def test_price_add():
