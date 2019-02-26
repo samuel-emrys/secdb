@@ -54,3 +54,8 @@ def test_delete_currency():
     # Delete
     session.delete(aud)
     session.commit()
+
+
+def test_currency_equality():
+    test_code = 'AUD'
+    assert test_code == aud
