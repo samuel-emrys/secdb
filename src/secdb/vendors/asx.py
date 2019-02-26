@@ -131,8 +131,6 @@ class ASX(Vendor):
 
                 sector = self.parseSector(sector)
                 now = datetime.utcnow()
-                created_date = now
-                last_updated_date = now
                 symbol_pair = (ticker, exchange)
 
                 # Create symbol object to add to list
@@ -144,11 +142,11 @@ class ASX(Vendor):
                         instrument=instrument,
                         name=name,
                         sector=sector,
-                        currency=currency,
+                        currency_code=currency,
                         mer=MER,
                         benchmark=benchmark,
-                        created_date=created_date,
-                        last_updated_date=last_updated_date,
+                        created_date=now,
+                        last_updated_date=now,
                     )
 
                     self.symbols.append(symbol)
@@ -276,8 +274,6 @@ class ASX(Vendor):
                     listing_date = self.parse_date(listing_date, "%b-%y")
 
                     now = datetime.utcnow()
-                    last_updated_date = now
-                    created_date = now
                     symbol_pair = (ticker, exchange)
 
                     if symbol_pair not in existing_symbols:
@@ -287,12 +283,12 @@ class ASX(Vendor):
                             instrument=instrument,
                             name=name,
                             sector=sector,
-                            currency=currency,
+                            currency_code=currency,
                             mer=mer,
                             benchmark=benchmark,
                             listing_date=listing_date,
-                            created_date=created_date,
-                            last_updated_date=last_updated_date,
+                            created_date=now,
+                            last_updated_date=now,
                         )
                         self.symbols.append(symbol)
 

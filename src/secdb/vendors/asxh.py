@@ -117,15 +117,13 @@ class ASXHistorical(Vendor):
                     # if ticker not in symbols:
                     if symbol_count[ticker] == 1:
                         now = datetime.utcnow()
-                        last_updated_date = now
-                        created_date = now
 
                         symbol = Symbol(
                             exchange_code=self.exchange,
                             ticker=ticker,
-                            currency=self.currency,
-                            created_date=created_date,
-                            last_updated_date=last_updated_date,
+                            currency_code=self.currency,
+                            created_date=now,
+                            last_updated_date=now,
                         )
                         self.symbols.append(symbol)
 

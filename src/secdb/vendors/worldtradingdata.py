@@ -25,9 +25,6 @@ class WorldTradingData(Vendor):
         _multi_single_day"
         self.symbols = []
         self.exchanges = []
-        # key = self.api_key.strip().split()
-        # self.historical_key = key[0]
-        # self.single_day_key = key[1]
 
     def build_prices(self, symbols):
         # Since this is rate limited, just do as part of update function
@@ -47,6 +44,7 @@ class WorldTradingData(Vendor):
 
         # Parse symbols in the stocklist, and add them to list for addition to
         # database
+
         for line in stocklist:
 
             exchange = helpers.removeWhitespace(line[4])
@@ -62,8 +60,6 @@ class WorldTradingData(Vendor):
             )
 
             now = datetime.utcnow()
-            created_date = now
-            last_updated_date = now
 
             if (exchange in exchanges) and (currency is not None):
                 symbol_pair = (ticker, exchange)
@@ -74,9 +70,9 @@ class WorldTradingData(Vendor):
                         exchange_code=exchange,
                         ticker=ticker,
                         name=name,
-                        currency=currency,
-                        created_date=created_date,
-                        last_updated_date=last_updated_date,
+                        currency_code=currency,
+                        created_date=now,
+                        last_updated_date=now,
                     )
 
                     self.symbols.append(symbol)
@@ -123,8 +119,13 @@ class WorldTradingData(Vendor):
             ):
                 exchangeCount[exchange] = exchangeCount.get(exchange, 0) + 1
                 if exchangeCount[exchange] == 1:
+                    now = datetime.utcnow()
                     exchangeObj = Exchange(
-                        abbrev=exchange, suffix=suffix, name=exchangeDesc
+                        abbrev=exchange,
+                        suffix=suffix,
+                        name=exchangeDesc,
+                        created_date=now,
+                        last_updated_date=now
                     )
                     self.exchanges.append(exchangeObj)
 
