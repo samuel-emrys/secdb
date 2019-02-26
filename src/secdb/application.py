@@ -22,6 +22,8 @@ def build_database(vendors):
 
     agg = Aggregator(session)
 
+    agg.import_vendors(vendors)
+
     # Using 4 loops, one for each dataset to be built.
     # Ensures that each dataset is fully built before building the next.
     for vendor in vendors:
