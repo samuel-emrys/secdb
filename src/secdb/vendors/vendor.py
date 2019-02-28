@@ -36,7 +36,7 @@ class Vendor(Base):
 
     # Relationship management
     # Data vendor has many prices
-    prices_daily = relationship('Price', backref='vendor')
+    prices_daily = relationship('Price', back_populates='vendor')
 
     # Abstract vendor class, individual vendors inherit from this
 
@@ -223,7 +223,7 @@ class Vendor(Base):
         pass
 
     @abstractmethod
-    def build_prices(self, symbols):
+    def build_prices(self, symbols, session):
         pass
 
     @abstractmethod

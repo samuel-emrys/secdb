@@ -49,7 +49,11 @@ class Symbol(Base):
 
     # Relationship management
     # Symbol has many prices
-    prices_daily = relationship('Price', backref='symbol')
+    prices_daily = relationship('Price', back_populates='symbol')
+    # Exchange has many symbols, symbol has one exchange
+    exchange = relationship('Exchange', back_populates='symbols')
+    # Symbol has one currency, currency has many symbols
+    currency = relationship('Currency', back_populates='symbols')
 
     # def __init__(
     #     self,

@@ -2,6 +2,7 @@ from secdb.database import Base
 from sqlalchemy import Column, Integer, BigInteger
 from sqlalchemy.types import DECIMAL
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 '''
 CREATE TABLE DAILY_PRICE(
@@ -39,6 +40,10 @@ class Price(Base):
     volume = Column(BigInteger)
     created_date = Column(TIMESTAMP)
     last_updated_date = Column(TIMESTAMP)
+
+    vendor = relationship('Vendor', back_populates='prices_daily')
+    symbol = relationship('Symbol', back_populates='prices_daily')
+
 
     # def __init__(
     #     self,

@@ -14,7 +14,7 @@ class Currency(Base):
 
     # Relationship management
     # Currency has many symbols
-    symbols = relationship('Symbol', backref='currency')
+    symbols = relationship('Symbol', back_populates='currency')
 
     def __str__(self):
 

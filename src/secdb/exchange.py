@@ -40,7 +40,7 @@ class Exchange(Base):
 
     # Relationship managment
     # Exchange has many symbols
-    symbols = relationship('Symbol', backref='exchange')
+    symbols = relationship('Symbol', back_populates='exchange')
 
     def __str__(self):
 
