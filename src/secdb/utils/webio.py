@@ -61,63 +61,69 @@ class WebIO:
         download_url = url + file
 
         # Download content
-        r = session.get(download_url, stream=True, headers=headers)
-        total_length = r.headers.get("content-length")
+        try:
+            # r = session.get(download_url, stream=True, headers=headers)
+            with session.get(download_url, stream=True, headers=headers) as r:
 
-        if file == "":
-            disposition_elements = {}
-            # TODO: this should be it's own function to parse content
-            # disposition
-            content_disposition = r.headers.get("content-disposition")
-            if content_disposition is not None:
-                parts = content_disposition.split()
+                total_length = r.headers.get("content-length")
 
-                for part in parts:
-                    if "=" in part:
-                        elements = part.split("=")
-                        disposition_elements[elements[0]] = elements[1]
+                if file == "":
+                    disposition_elements = {}
+                    # TODO: this should be it's own function to parse content
+                    # disposition
+                    content_disposition = r.headers.get("content-disposition")
+                    if content_disposition is not None:
+                        parts = content_disposition.split()
 
-                file = disposition_elements["filename"]
+                        for part in parts:
+                            if "=" in part:
+                                elements = part.split("=")
+                                disposition_elements[elements[0]] = elements[1]
 
-        sys.stderr.write("\n")
-        sys.stderr.write("Downloading %s from %s\n" % (file, urlStr))
+                        file = disposition_elements["filename"]
 
-        # TODO: Find a progress bar package that handles both known and
-        # unknown sizes
-        if total_length is None:
-            count = 0
-            done = 0
-            for chunk in r.iter_content(chunk_size=1024):
-                count += 1
-                if chunk:
+                sys.stderr.write("\n")
+                sys.stderr.write("Downloading %s from %s\n" % (file, urlStr))
 
-                    content.append(chunk)
-                    if count % 32 == 0:
-                        done += 1
-                        done = done % 32
-                        sys.stderr.write(
-                            "\r[%s%s] 0/1 - Unknown Time Remaining"
-                            % ("#" * done, " " * (32 - done))
-                        )
-                        sys.stderr.flush()
+                # TODO: Find a progress bar package that handles both known and
+                # unknown sizes
+                if total_length is None:
+                    count = 0
+                    done = 0
+                    for chunk in r.iter_content(chunk_size=1024):
+                        count += 1
+                        if chunk:
 
-            sys.stderr.write(
-                "\r[%s] 1/1 - 00:00 Done%s\n" % ("#" * 32, " " * 32)
-            )
-            sys.stderr.flush()
+                            content.append(chunk)
+                            if count % 32 == 0:
+                                done += 1
+                                done = done % 32
+                                sys.stderr.write(
+                                    "\r[%s%s] 0/1 - Unknown Time Remaining"
+                                    % ("#" * done, " " * (32 - done))
+                                )
+                                sys.stderr.flush()
 
-        else:
-            # Show progress bar
-            total_length = int(total_length)
-            for chunk in progress.bar(
-                r.iter_content(chunk_size=1024),
-                expected_size=(total_length / 1024) + 1,
-            ):
-                if chunk:
-                    # Append chunk to content list
-                    content.append(chunk)
+                    sys.stderr.write(
+                        "\r[%s] 1/1 - 00:00 Done%s\n" % ("#" * 32, " " * 32)
+                    )
+                    sys.stderr.flush()
 
-                    # Rejoin the file so it can be parsed
-        download = b"".join(content)
+                else:
+                    # Show progress bar
+                    total_length = int(total_length)
+                    for chunk in progress.bar(
+                        r.iter_content(chunk_size=1024),
+                        expected_size=(total_length / 1024) + 1,
+                    ):
+                        if chunk:
+                            # Append chunk to content list
+                            content.append(chunk)
+
+                            # Rejoin the file so it can be parsed
+                download = b"".join(content)
+
+        except requests.exceptions.ChunkedEncodingError:
+            download = None
 
         return download
