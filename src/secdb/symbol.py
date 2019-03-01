@@ -109,3 +109,6 @@ class Symbol(Base):
                 and (self.ticker == other.ticker)
                 )
         return False
+
+    def __hash__(self):
+        return hash((self.exchange_code, self.ticker))
