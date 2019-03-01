@@ -63,3 +63,6 @@ class Exchange(Base):
         elif isinstance(other, str):
             return (self.abbrev == other)
         return False
+
+    def __hash__(self):
+        return hash(self.abbrev)

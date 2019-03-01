@@ -44,34 +44,6 @@ class Price(Base):
     vendor = relationship('Vendor', back_populates='prices_daily')
     symbol = relationship('Symbol', back_populates='prices_daily')
 
-
-    # def __init__(
-    #     self,
-    #     data_vendor_id,
-    #     symbol_id,
-    #     price_date,
-    #     created_date,
-    #     last_updated_date,
-    #     open_price=None,
-    #     high_price=None,
-    #     low_price=None,
-    #     close_price=None,
-    #     adj_close_price=None,
-    #     volume=None,
-    # ):
-
-    #     self.data_vendor_id = data_vendor_id
-    #     self.symbol_id = symbol_id
-    #     self.price_date = price_date
-    #     self.created_date = created_date
-    #     self.last_updated_date = last_updated_date
-    #     self.open_price = open_price
-    #     self.high_price = high_price
-    #     self.low_price = low_price
-    #     self.close_price = close_price
-    #     self.adj_close_price = adj_close_price
-    #     self.volume = volume
-
     def __str__(self):
         out = [
             str(self.data_vendor_id),

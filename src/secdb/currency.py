@@ -33,3 +33,6 @@ class Currency(Base):
         elif isinstance(other, str):
             return (self.code == other)
         return False
+
+    def __hash__(self):
+        return hash(self.code)
