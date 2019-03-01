@@ -9,6 +9,7 @@ class Aggregator:
     def __init__(self, session):
         self.session = session
         self.currencies = []
+        # self.symbols = []
         self.symbols = []
         self.exchanges = []
         self.prices = []
@@ -23,35 +24,30 @@ class Aggregator:
 
     def import_currencies(self, currencies):
 
+        # Remove empty list elements
         currencies = [x for x in currencies if x is not None]
 
-        if len(currencies) == 1:
-            for source in currencies:
-                for currency in source:
-                    self.currencies.append(currency)
-                    # self.currencies[currency.code] = currency
-        else:
-            # Currency-ISO is not the only vendor, handle this appropriately
-            pass
+        # Consolidate currencies into unique list
+        currset = set()
+        for source in currencies:
+            currset.update(source)
+        self.currencies = list(currset)
 
+        # Insert to database
         self.session.bulk_save_objects(self.currencies)
         self.session.commit()
 
     def import_symbols(self, symbols):
+        # Remove empty lists (caused by vendors not providing a symbol list)
         symbols = [x for x in symbols if x is not None]
 
+        # Consolidate symbols into unique list
+        symset = set()
         for source in symbols:
-            for symbol in source:
-                if (symbol not in self.symbols):
-                    self.symbols.append(symbol)
+            symset.update(source)
+        self.symbols = list(symset)
 
-        # Creates a dict of symbols
-        # for source in symbols:
-        #     for symbol in source:
-        #         key = (symbol.ticker, symbol.exchange_code)
-        #         if key not in self.symbols:
-        #             self.symbols[key] = symbol
-
+        # Insert symbols to database
         self.session.bulk_save_objects(self.symbols)
         self.session.commit()
 
@@ -70,20 +66,20 @@ class Aggregator:
             - Dynamic programming?
             - Look into techniques
         """
+        # Remove empty list elements
         exchanges = [x for x in exchanges if x is not None]
 
+        # Consolidate symbols into unique list
+        exchset = set()
         for source in exchanges:
-            for exchange in source:
-                if exchange not in self.exchanges:
-                    self.exchanges.append(exchange)
+            exchset.update(source)
+        self.exchanges = list(exchset)
 
-        # for source in exchanges:
-        #     for exchange in source:
-        #         if exchange.abbrev not in self.exchanges:
-        #             self.exchanges[exchange.abbrev] = exchange
-
+        # Insert to database
         self.session.bulk_save_objects(self.exchanges)
         self.session.commit()
 
     def import_prices(self, prices):
+        # Due to data size and RAM constraints, prices are inserted directly to
+        # database from vendors
         pass
