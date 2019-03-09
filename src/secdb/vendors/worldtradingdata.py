@@ -38,6 +38,10 @@ class WorldTradingData(Vendor):
 
         session = WebIO.login(self.login_url)
         download = WebIO.download(url=self.stock_url, session=session)
+
+        if download is None:
+            return self.symbols
+
         csvfile = io.StringIO(download.decode("utf-8"))
         stocklist = csv.reader(csvfile)
         existing_symbols = [(x.ticker, x.exchange_code) for x in self.symbols]

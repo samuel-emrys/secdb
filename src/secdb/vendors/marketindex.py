@@ -16,6 +16,7 @@ class MarketIndex(Vendor):
         self.prices = {}
 
     def build_prices(self, symbols):
+        # TODO: Update so it doesn't use a dict for prices
         self.exchange = "ASX"
 
         price_page = WebIO.download(self.api_url).decode("utf-8")
@@ -45,7 +46,20 @@ class MarketIndex(Vendor):
             key = (ticker, self.exchange)
             self.prices[key] = priceObj
 
-        return self.prices
+            if (len(self.prices) == 100):
+                # Add price list to database
+                self.session.bulk_save_objects(self.prices)
+                self.session.commit()
+                # flush price list
+                self.prices = []
+
+        # Add the remaining prices to database
+        self.session.bulk_save_objects(self.prices)
+        self.session.commit()
+        # flush price list
+        self.prices = []
+
+        # return self.prices
 
     def build_currency(self):
         pass

@@ -77,8 +77,19 @@ class ASXHistorical(Vendor):
                         )
 
                         self.prices.append(price)
-                        # TODO: Insert self.prices to database, too large to
-                        # append outside this.
+
+                        if (len(self.prices) == 100):
+                            # Add price list to database
+                            self.session.bulk_save_objects(self.prices)
+                            self.session.commit()
+                            # flush price list
+                            self.prices = []
+
+                # Add the remaining prices to database
+                self.session.bulk_save_objects(self.prices)
+                self.session.commit()
+                # flush price list
+                self.prices = []
 
     def build_currency(self):
         pass

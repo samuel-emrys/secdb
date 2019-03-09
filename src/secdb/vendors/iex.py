@@ -83,7 +83,20 @@ class IEX(Vendor):
                         )
                         # print(price)
 
-                        # self.prices.append(price)
+                        self.prices.append(price)
+
+                        if (len(self.prices) == 100):
+                            # Add price list to database
+                            self.session.bulk_save_objects(self.prices)
+                            self.session.commit()
+                            # flush price list
+                            self.prices = []
+
+                    # Add the remaining prices to database
+                    self.session.bulk_save_objects(self.prices)
+                    self.session.commit()
+                    # flush price list
+                    self.prices = []
 
     def build_currency(self):
         pass
