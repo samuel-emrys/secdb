@@ -4,7 +4,7 @@ import csv
 import requests
 from lxml import html
 from datetime import datetime
-from datetime import time
+import time
 
 from secdb.utils.webio import WebIO
 from secdb.vendors.vendor import Vendor
@@ -22,19 +22,24 @@ class ASX(Vendor):
         )
         self.company_url = "https://www.asx.com.au/asx/research/"
         self.company_file = "ASXListedCompanies.csv"
-        self.etp_url = "https://www.asx.com.au/products/etf/\
-        managed-funds-etp-product-list.htm"
+        self.etp_url = "https://www.asx.com.au/products/etf/managed-funds-etp-product-list.htm"
         self.symbols = []
         self.prices = []
 
     def build_currency(self):
         pass
 
-    def build_prices(self, symbols):
+    def build_prices(self, symbols, session):
         symbols_au = [x for x in self.symbols if x.exchange_code == "ASX"]
+        vendor = session.query(Vendor).filter(Vendor.name=='Australian Stock Exchange').first()
 
+        i = 0
         for symbol in symbols_au:
-            query = self.api_url.replace("SYMBOL", symbol.ticker)
+            i+=1
+            if i == 10:
+                break
+
+            query = self.api['url'].replace("SYMBOL", symbol.ticker)
 
             download = WebIO.download(query).decode("utf-8")
 
@@ -47,7 +52,6 @@ class ASX(Vendor):
                 ("id-or-code-invalid" not in download)
                 and (download is not None)
             ):
-                print(symbol.ticker)
                 try:
                     json_prices = json.loads(download)
 
@@ -73,11 +77,20 @@ class ASX(Vendor):
                         close_price = price_dict["close_price"]
                         volume = price_dict["volume"]
 
+                        symbol = session.query(Symbol).filter(Symbol.ticker == ticker and Symbol.exchange_code == 'ASX').first()
+                        # sym_q1 = session.query(Symbol).filter(Symbol.ticker == ticker)
+                        # sym_q2 = session.query(Symbol).filter(Symbol.exchange_code == 'ASX')
+                        # symbol = sym_q1.union(sym_q2).first()
+
+                        print(ticker)
+                        print(symbol)
+
                         if price_date is not None:
+
                             price = Price(
-                                vendor=ASX,
+                                vendor=vendor,
                                 price_date=price_date,
-                                symbol=ticker,
+                                symbol=symbol,
                                 created_date=now,
                                 last_updated_date=now,
                                 open_price=open_price,
@@ -89,17 +102,33 @@ class ASX(Vendor):
 
                             self.prices.append(price)
 
+                            if (len(self.prices) == 100):
+                                for price in self.prices:
+                                    print(price)
+                                # Add price list to database
+                                session.bulk_save_objects(self.prices)
+                                session.commit()
+                                # flush price list
+                                self.prices = []
+
+                if (len(self.prices) > 0):
+                    # Add the remaining prices to database
+                    session.bulk_save_objects(self.prices)
+                    session.commit()
+                    # flush price list
+                    self.prices = []
+
     def build_exchanges(self):
         pass
 
     def build_symbols(self, currencies, exchanges):
         self.currencies = currencies
-        self.build_companies()
-        self.build_exchange_products()
+        self.build_companies(currencies, exchanges)
+        self.build_exchange_products(currencies, exchanges)
 
         return self.symbols
 
-    def build_companies(self):
+    def build_companies(self, currencies, exchanges):
 
         download = WebIO.download(url=self.company_url, file=self.company_file)
         download = download.decode("utf-8")
@@ -133,16 +162,25 @@ class ASX(Vendor):
                 now = datetime.utcnow()
                 symbol_pair = (ticker, exchange)
 
+                exchangeObj = next((x for x in exchanges if x.abbrev == exchange), None)
+                currencyObj = next((x for x in currencies if x.code == currency), None)
+
+                print("-------------------")
+                print(exchangeObj)
+                print(currencyObj)
+                print(ticker)
                 # Create symbol object to add to list
-                if symbol_pair not in existing_symbols:
+                if (symbol_pair not in existing_symbols) and (exchangeObj is not None):
 
                     symbol = Symbol(
-                        exchange_code=exchange,
+                        exchange=exchangeObj,
+                        currency=currencyObj,
+                        # exchange_code=exchange,
                         ticker=ticker,
                         instrument=instrument,
                         name=name,
                         sector=sector,
-                        currency_code=currency,
+                        # currency_code=currency,
                         mer=MER,
                         benchmark=benchmark,
                         created_date=now,
@@ -152,7 +190,7 @@ class ASX(Vendor):
                     self.symbols.append(symbol)
                     existing_symbols.append(symbol_pair)
 
-    def build_exchange_products(self):
+    def build_exchange_products(self, currencies, exchanges):
 
         page = requests.get(self.etp_url)
         tree = html.fromstring(page.content)
