@@ -34,19 +34,19 @@ def build_database(vendors):
         exchanges.append(vendor.build_exchanges())
     agg.import_exchanges(exchanges)
 
-    for exchange in agg.exchanges:
-        print(agg.exchanges[exchange])
+    # for exchange in agg.exchanges:
+    #     print(agg.exchanges[exchange])
 
-    # for vendor in vendors:
-    #     symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
-    # agg.import_symbols(symbols)
+    for vendor in vendors:
+        symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
+    agg.import_symbols(symbols)
 
     # print(agg.symbols)
 
-    # for vendor in vendors:
-    #     print(type(vendor))
-    #     if (type(vendor) == IEX):
-    #         prices.append(vendor.build_prices(agg.symbols))
+    for vendor in vendors:
+        print(type(vendor))
+        if (type(vendor) == IEX):
+            prices.append(vendor.build_prices(agg.symbols))
 
     # agg.import_prices(prices)
 
