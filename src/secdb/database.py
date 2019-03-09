@@ -19,7 +19,7 @@ def connect():
     db_host = "localhost"
     db_user = "postgres"
     db_pass = ""
-    db_name = "securities_master"
+    db_name = "securities_master_test"
 
     db_string = "postgresql://"+db_user+":"+db_pass+"@"+db_host+"/"+db_name
     db = create_engine(db_string)
