@@ -29,8 +29,8 @@ class Price(Base):
     __tablename__ = 'daily_price'
 
     id = Column(Integer, primary_key=True)
-    data_vendor_id = Column(Integer, ForeignKey('data_vendor.id'))
-    symbol_id = Column(Integer, ForeignKey('symbol.id'))
+    data_vendor_id = Column(Integer, ForeignKey('data_vendor.id'), nullable=False)
+    symbol_id = Column(Integer, ForeignKey('symbol.id'), nullable=False)
     price_date = Column(TIMESTAMP)
     open_price = Column(DECIMAL(19, 4))
     high_price = Column(DECIMAL(19, 4))
