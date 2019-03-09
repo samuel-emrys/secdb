@@ -1,4 +1,3 @@
-from secdb.vendors.worldtradingdata import WorldTradingData
 from secdb.application import import_vendors
 
 vendors = import_vendors()
@@ -13,7 +12,7 @@ for vendor in vendors:
 def test_build_exchanges():
     wtd.build_exchanges()
 
-    print ("Number of exchanges: " + str(len(wtd.exchanges)))
+    print("Number of exchanges: " + str(len(wtd.exchanges)))
     assert len(wtd.exchanges) == 40
 
 

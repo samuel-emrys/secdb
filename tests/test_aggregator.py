@@ -9,7 +9,6 @@ agg = Aggregator(session)
 
 def test_vendor_add():
     vendors = import_vendors()
-
     agg.import_vendors(vendors)
 
 
@@ -23,6 +22,7 @@ def test_currency_add():
 def test_exchange_add():
     exchanges = []
     for vendor in agg.vendors:
+        # if vendor.name != 'World Trading Data':
         exchanges.append(vendor.build_exchanges())
     agg.import_exchanges(exchanges)
 
@@ -32,10 +32,6 @@ def test_symbol_add():
     for vendor in agg.vendors:
         symbols.append(vendor.build_symbols(agg.currencies, agg.exchanges))
     agg.import_symbols(symbols)
-
-    # for vendor in agg.vendors:
-
-    # pass
 
 
 def test_price_add():

@@ -19,11 +19,11 @@ db_pass = ""
 db_name = "securities_master"
 
 db_string = "postgresql://"+db_user+":"+db_pass+"@"+db_host+"/"+db_name
-db = create_engine(db_string)
+# db = create_engine(db_string)
 
-Session = sessionmaker(db)
-session = Session()
-Base.metadata.create_all(db)
+# Session = sessionmaker(db)
+# session = Session()
+# Base.metadata.create_all(db)
 
 '''
     id = Column(Integer, primary_key=True)
@@ -41,6 +41,10 @@ Base.metadata.create_all(db)
 '''
 
 vendors = import_vendors()
+
+for vendor in vendors:
+    if vendor.name == 'Australian Stock Exchange':
+        asx_vendor = vendor
 
 asx = Exchange(
         abbrev='ASX',
@@ -71,8 +75,8 @@ vts = Symbol(
         instrument='ETF',
         name='Vanguard Total US Stock Market Index ETF',
         sector=None,
-        currency_code='AUD',
-        # currency=aud,
+        # currency_code='AUD',
+        currency=aud,
         mer='0.05%',
         benchmark='MSCI Total US Stock Market Index',
         listing_date=datetime.strptime("2009-12-01", "%Y-%m-%d"),
@@ -81,68 +85,76 @@ vts = Symbol(
 
     )
 
-vts_price = Price(
-    data_vendor_id=2,
-    symbol_id=1,
-    price_date=datetime.strptime("2018-12-01", "%Y-%m-%d"),
-    created_date=datetime.utcnow(),
-    last_updated_date=datetime.utcnow(),
-    open_price=172.33,
-    high_price=186.74,
-    low_price=169.90,
-    close_price=183.67,
-    adj_close_price=None,
-    volume=43122
-    )
+def test_create_price():
+    vts_price = Price(
+        # data_vendor_id=2,
+        # symbol_id=1,
+        symbol=vts,
+        vendor=asx_vendor,
+        price_date=datetime.strptime("2018-12-01", "%Y-%m-%d"),
+        created_date=datetime.utcnow(),
+        last_updated_date=datetime.utcnow(),
+        open_price=172.33,
+        high_price=186.74,
+        low_price=169.90,
+        close_price=183.67,
+        adj_close_price=None,
+        volume=43122
+        )
+    print(vts_price)
+    print(vts_price.vendor)
+    print(vts_price.symbol)
+
+# vts_price.vendors.append(asx_vendor)
 
 
-def test_insert_price():
-    # Insert currency
-    session.add(aud)
+# def test_insert_price():
+#     # Insert currency
+#     session.add(aud)
 
-    # Insert Exchange
-    session.add(asx)
-    session.commit()
+#     # Insert Exchange
+#     session.add(asx)
+#     session.commit()
 
-    for vendor in vendors:
-        session.add(vendor)
-        session.commit()
+#     for vendor in vendors:
+#         session.add(vendor)
+#         session.commit()
 
-    # Insert Symbol
-    session.add(vts)
-    session.commit()
+#     # Insert Symbol
+#     session.add(vts)
+#     session.commit()
 
-    # Insert Price
-    session.add(vts_price)
-    session.commit()
-
-
-def test_read_prices():
-    # Read
-    prices = session.query(Price)
-    for price in prices:
-        print(price)
+#     # Insert Price
+#     session.add(vts_price)
+#     session.commit()
 
 
-def test_update_price():
-    # Update
-    vts_price.volume=50000
-    session.commit()
-    test_read_prices()
+# def test_read_prices():
+#     # Read
+#     prices = session.query(Price)
+#     for price in prices:
+#         print(price)
 
 
-def test_delete_price():
-    # Delete
-    session.delete(vts)
-    session.commit()
-    session.delete(asx)
-    session.commit()
-    session.delete(aud)
-    session.commit()
-    for vendor in vendors:
-        session.delete(vendor)
-        session.commit()
-    session.delete(vts_price)
-    session.commit()
-    print("Table contents deleted")
-    # pass
+# def test_update_price():
+#     # Update
+#     vts_price.volume=50000
+#     session.commit()
+#     test_read_prices()
+
+
+# def test_delete_price():
+#     # Delete
+#     session.delete(vts)
+#     session.commit()
+#     session.delete(asx)
+#     session.commit()
+#     session.delete(aud)
+#     session.commit()
+#     for vendor in vendors:
+#         session.delete(vendor)
+#         session.commit()
+#     session.delete(vts_price)
+#     session.commit()
+#     print("Table contents deleted")
+#     # pass
