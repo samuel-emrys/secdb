@@ -22,6 +22,8 @@
 		"website_url":"https://www.asx.com.au",
 		"api": [{
 			"url":"https://www.asx.com.au/asx/1/share/SYMBOL/prices?interval=daily&count=1000",
+			"url2":"https://www.asx.com.au/asx/1/chart/highcharts?asx_code=SYMBOL&complete=true",
+			"company_info":"https://www.asx.com.au/asx/1/company/VTS?fields=primary_share,latest_annual_reports,last_dividend,primary_share.indices"
 			"key":""
 		}]
 	},
@@ -96,6 +98,15 @@
 		"website_url":"https://www.currency-iso.org",
 		"api":[{
 			"url":"https://www.currency-iso.org/dam/downloads/lists/",
+			"key":""
+		}]
+	}
+
+	"dividends.com.au": {
+		"name":"Dividends.com.au"
+		"website_url":"https://www.dividends.com.au"
+		"api:"[{
+			"url":"http://dividends.com.au/dividend-history/?enter_code=SYMBOL"
 			"key":""
 		}]
 	}
